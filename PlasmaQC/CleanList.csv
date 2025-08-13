@@ -1,0 +1,92 @@
+﻿Protein IDs;Gene names;Protein names;Majority protein IDs;Type;Comment
+P69905;HBA1;Hemoglobin subunit alpha;P69905;erythrocyte;
+P68871;HBB;"Hemoglobin subunit beta;LVV-hemorphin-7;Spinorphin";P68871;erythrocyte;
+"P00915;E5RHP7;E5RH81;E5RFE7;H0YBE2;E5RIF9;E5RG43;E5RFL2";CA1;Carbonic anhydrase 1;"P00915;E5RHP7;E5RH81;E5RFE7;H0YBE2;E5RIF9;E5RG43";erythrocyte;
+"P02042;E9PFT6";HBD;Hemoglobin subunit delta;"P02042;E9PFT6";erythrocyte;
+"P32119;A6NIW5;P32119-2";PRDX2;Peroxiredoxin-2;P32119;erythrocyte;
+"P00918;E5RID5;E5RK37";CA2;Carbonic anhydrase 2;P00918;erythrocyte;
+P04040;CAT;Catalase;P04040;erythrocyte;
+"P02730;A0A0A0MS98";SLC4A1;Band 3 anion transport protein;"P02730;A0A0A0MS98";erythrocyte;
+"P30043;M0R192;M0QZL1";BLVRB;Flavin reductase (NADPH);"P30043;M0R192;M0QZL1";erythrocyte;
+"P02549;A0A087WZE4;P02549-2";SPTA1;Spectrin alpha chain, erythrocytic 1;"P02549;A0A087WZE4;P02549-2";erythrocyte;
+"P11277;P11277-2;P11277-3;H0YJE6;Q01082;Q01082-3;A0A087WUZ3;Q01082-2;F8W6C1;A4QPE4;E9PJZ2";SPTB;Spectrin beta chain, erythrocytic;"P11277;P11277-2;P11277-3";erythrocyte;
+"P16157-3;P16157-16;P16157-12;P16157-14;P16157-7;P16157-13;P16157-15;H0YBS0;P16157-17;P16157-20;P16157-18";ANK1;Ankyrin-1;"P16157-3;P16157-16;P16157-12;P16157-14;P16157-7;P16157-13;P16157-15;H0YBS0";erythrocyte;
+"P04406;P04406-2;E7EUT5;O14556";GAPDH;Glyceraldehyde-3-phosphate dehydrogenase;"P04406;P04406-2;E7EUT5";erythrocyte;
+"P00441;H7BYH4";SOD1;Superoxide dismutase [Cu-Zn];"P00441;H7BYH4";erythrocyte;
+P30041;PRDX6;Peroxiredoxin-6;P30041;erythrocyte;
+"P07738;C9JH23";BPGM;Bisphosphoglycerate mutase;P07738;erythrocyte;
+"P60709;P63261;I3L3I0;I3L1U9;I3L4N8;G5E9R0;I3L3R2;E7EVS6;J3KT65;P63267-2;K7EM38;Q6S8J3;Q562R1;C9JUM1;C9JZR7;A5A3E0;P0CG38;C9JTX5;P0CG39;Q9BYX7;F8WCH0";"ACTB;ACTG1";"Actin, cytoplasmic 1;Actin, cytoplasmic 1, N-terminally processed;Actin, cytoplasmic 2;Actin, cytoplasmic 2, N-terminally processed";"P60709;P63261";erythrocyte;
+"Q13228;Q13228-4;Q13228-2;Q13228-3;A6PVX1;H0Y532;F2Z2W8;F8WCR4;C9JVL0;F8WBA9";SELENBP1;Selenium-binding protein 1;"Q13228;Q13228-4;Q13228-2;Q13228-3;A6PVX1;H0Y532";erythrocyte;
+"P11171-2;P11171;Q4VB86;P11171-3;P11171-5;P11171-7;P11171-6;Q9Y2J2;Q9Y2J2-2;A0A0A0MRA8;Q9H4G0;Q9H4G0-2;Q9H4G0-4;J3KT37;Q4VXN1;Q4VXN0;B2RB02;A0A0D9SG07;A0A0C4DH22;Q9Y2J2-3;Q9H4G0-3;Q9Y2J2-4";EPB41;Protein 4.1;"P11171-2;P11171;Q4VB86;P11171-3;P11171-5;P11171-7;P11171-6";erythrocyte;
+"P07195;A8MW50;C9J7H8;F5H793";LDHB;"L-lactate dehydrogenase B chain;L-lactate dehydrogenase";"P07195;A8MW50;C9J7H8";erythrocyte;
+"P63241;I3L397;I3L504;P63241-2;Q9GZV4;Q6IS14;F8WCJ1;C9J7B5;C9J4W5";"EIF5A;EIF5A2;EIF5AL1";"Eukaryotic translation initiation factor 5A-1;Eukaryotic translation initiation factor 5A;Eukaryotic translation initiation factor 5A-2;Eukaryotic translation initiation factor 5A-1-like";"P63241;I3L397;I3L504;P63241-2;Q9GZV4;Q6IS14;F8WCJ1;C9J7B5;C9J4W5";erythrocyte;
+"P00491;G3V5M2;G3V2H3;G3V393";PNP;Purine nucleoside phosphorylase;"P00491;G3V5M2";erythrocyte;
+"P04075;P04075-2;H3BQN4;J3KPS3;H3BPS8;H3BUH7;H3BR04;H3BMQ8;H3BU78;H3BR68";ALDOA;"Fructose-bisphosphate aldolase A;Fructose-bisphosphate aldolase";"P04075;P04075-2;H3BQN4;J3KPS3;H3BPS8";erythrocyte;
+"P60174;P60174-1;P60174-4;U3KPZ0;U3KQF3;U3KPS5";TPI1;Triosephosphate isomerase;"P60174;P60174-1;P60174-4";erythrocyte;
+"Q9GZT8;Q9GZT8-2;Q9GZT8-3;E7EXA3;Q6X734;B8ZZI0;C9JN42;H7C1A8";NIF3L1;NIF3-like protein 1;"Q9GZT8;Q9GZT8-2;Q9GZT8-3;E7EXA3;Q6X734";erythrocyte;
+"P0CG48;P0CG47;P62979;P62987;J3QS39;J3QTR3;F5H6Q2;F5GYU3;F5H2Z3;F5H265;B4DV12;F5H388;F5H747;F5GXK7;J3QKN0;Q5PY61;Q96C32;M0R1V7;J3QSA3;F5GZ39;J3QLP7;J3QRK5;M0R1M6;K7EMA8;J3KSM4";"UBC;UBB;RPS27A;UBA52;UBBP4";"Polyubiquitin-C;Ubiquitin;Polyubiquitin-B;Ubiquitin;Ubiquitin-40S ribosomal protein S27a;Ubiquitin;40S ribosomal protein S27a;Ubiquitin-60S ribosomal protein L40;Ubiquitin;60S ribosomal protein L40";"P0CG48;P0CG47;P62979;P62987;J3QS39;J3QTR3;F5H6Q2;F5GYU3;F5H2Z3;F5H265;B4DV12;F5H388;F5H747;F5GXK7;J3QKN0;Q5PY61;Q96C32;M0R1V7;J3QSA3;F5GZ39;J3QLP7;J3QRK5;M0R1M6";erythrocyte;
+P02100;HBE1;Hemoglobin subunit epsilon;P02100;erythrocyte;
+"P11142;E9PKE3;E9PNE6;P11142-2;E9PN89;E9PLF4;E9PQQ4;E9PQK7;E9PK54;E9PPY6;E9PN25;E9PI65";HSPA8;Heat shock cognate 71 kDa protein;"P11142;E9PKE3;E9PNE6;P11142-2;E9PN89";erythrocyte;
+"P00558;P00558-2;P07205";PGK1;Phosphoglycerate kinase 1;"P00558;P00558-2";erythrocyte;
+"P13716;B7ZBK6";ALAD;Delta-aminolevulinic acid dehydratase;P13716;erythrocyte;
+"P21333-2;P21333;Q5HY54;Q60FE5;A0A087WWY3;H7C2E7";FLNA;Filamin-A;"P21333-2;P21333;Q5HY54;Q60FE5;A0A087WWY3";platelet;
+Q9Y490;TLN1;Talin-1;Q9Y490;platelet;
+"P35579;Q5BKV1;B1AH99;A0A0C4DFM8;A1L2Z2;P12883;P12882;Q9UKX2;Q9Y623;P13535;REV__S4R3H4;REV__E7EQT4;REV__Q9UKV3-5;REV__Q9UKV3";MYH9;Myosin-9;P35579;platelet;
+"P60709;E7EVS6;G5E9R0";ACTB;"Actin, cytoplasmic 1;Actin, cytoplasmic 1, N-terminally processed";P60709;platelet;
+"P18206;P18206-2;P18206-3;A0A096LPE1";VCL;Vinculin;"P18206;P18206-2";platelet;
+"P12814-3;P12814-2;P12814-4";ACTN1;Alpha-actinin-1;"P12814-3;P12814-2;P12814-4";platelet;
+"P67936;K7EPB9;K7EMU5;K7EPV9;U3KQK2;Q2TAC2;Q2TAC2-2";TPM4;Tropomyosin alpha-4 chain;P67936;platelet;
+"P07996;P07996-2;A8MZG1;P35442";THBS1;Thrombospondin-1;"P07996;P07996-2";platelet;
+Q9H4B7;TUBB1;Tubulin beta-1 chain;Q9H4B7;platelet;
+"P63104;E7EX29;B0AZS6;P63104-2;H0YB80;E7ESK7;E5RIR4;E9PD24;E7EVZ2;E5RGE1";YWHAZ;14-3-3 protein zeta/delta;"P63104;E7EX29;B0AZS6;P63104-2;H0YB80";platelet;
+"P06396-2;Q5T0I0";GSN;Gelsolin;P06396-2;platelet;
+"P68363;P68363-2;C9JDS9";TUBA1B;Tubulin alpha-1B chain;"P68363;P68363-2";platelet;
+"P08514;P08514-2;P08514-3;K7EP83;K7EKA6";ITGA2B;"Integrin alpha-IIb;Integrin alpha-IIb heavy chain;Integrin alpha-IIb light chain, form 1;Integrin alpha-IIb light chain, form 2";"P08514;P08514-2;P08514-3";platelet;
+"P00488;Q9NQP5;A6PVK5;H0Y796;H0Y4W5";F13A1;Coagulation factor XIII A chain;P00488;platelet;
+"P07737;K7EJ44;I3L3D5;CON__P02584";PFN1;Profilin-1;"P07737;K7EJ44";platelet;
+"P05106;H3BM21;P05106-2;I3L4X8";ITGB3;"Integrin beta-3;Integrin beta";"P05106;H3BM21;P05106-2";platelet;
+"P37802;P37802-2;X6RJP6";TAGLN2;Transgelin-2;"P37802;P37802-2;X6RJP6";platelet;
+"Q86UX7;Q86UX7-2;F5H1C6;H0YFT5";FERMT3;Fermitin family homolog 3;"Q86UX7;Q86UX7-2;F5H1C6";platelet;
+"P61224;P61224-3;E7ESV4;F5H7Y6;A6NIZ1;F5GX62;F5H004;P61224-2;P61224-4;F5H6R7;F5H0B7;F5H500;F5GYB5;F5H077;F5GWU8;F5H491;F5H4H0;F5GYH7;F8WBC0";RAP1B;"Ras-related protein Rap-1b;Ras-related protein Rap-1b-like protein";"P61224;P61224-3;E7ESV4;F5H7Y6;A6NIZ1;F5GX62;F5H004;P61224-2;P61224-4;F5H6R7";platelet;
+P08567;PLEK;Pleckstrin;P08567;platelet;
+P02775;PPBP;"Platelet basic protein;Connective tissue-activating peptide III;TC-2;Connective tissue-activating peptide III(1-81);Beta-thromboglobulin;Neutrophil-activating peptide 2(74);Neutrophil-activating peptide 2(73);Neutrophil-activating peptide 2;TC-1;Neutrophil-activating peptide 2(1-66);Neutrophil-activating peptide 2(1-63)";P02775;platelet;
+"P04406;E7EUT5;O14556";GAPDH;Glyceraldehyde-3-phosphate dehydrogenase;"P04406;E7EUT5";platelet;
+"Q13201;E7EPG1;Q13201-2";MMRN1;"Multimerin-1;Platelet glycoprotein Ia*;155 kDa platelet multimerin";"Q13201;E7EPG1";platelet;
+"P60660-2;G8JLA2;F8VZU9;F8W180;F8VXL3";MYL6;Myosin light polypeptide 6;"P60660-2;G8JLA2";platelet;
+"P23528;G3V1A4;E9PK25;E9PP50;E9PQB7;E9PLJ3;E9PS23";CFL1;Cofilin-1;"P23528;G3V1A4;E9PK25;E9PP50;E9PQB7;E9PLJ3;E9PS23";platelet;
+"Q9HBI1;Q9HBI1-3;Q9HBI1-2;B0QYP8;Q9NVD7;J3KNQ4;Q9NVD7-2";PARVB;Beta-parvin;"Q9HBI1;Q9HBI1-3;Q9HBI1-2";platelet;
+O95810;SDPR;Serum deprivation-response protein;O95810;platelet;
+P68371;TUBB4B;Tubulin beta-4B chain;P68371;platelet;
+"P62328;CON__P21752";TMSB4X;"Thymosin beta-4;Hematopoietic system regulatory peptide";P62328;platelet;
+"P14618;P14618-3;B4DNK4;H3BUW1;H3BTJ2;H3BT25;H3BU13;H3BN34;H3BQZ3";PKM;"Pyruvate kinase PKM;Pyruvate kinase";"P14618;P14618-3;B4DNK4";platelet;
+"P02675;D6REL8";FGB;"Fibrinogen beta chain;Fibrinopeptide B;Fibrinogen beta chain";"P02675;D6REL8";coagulation_UpPlasma;Increased in plasma
+"P02679;C9JC84";FGG;Fibrinogen gamma chain;"P02679;C9JC84";coagulation_UpPlasma;Increased in plasma
+"P02671;A0A087WUA0;CON__P02672";FGA;"Fibrinogen alpha chain;Fibrinopeptide A;Fibrinogen alpha chain";P02671;coagulation_UpPlasma;Increased in plasma
+"P00488;Q9NQP5;A6PVK5;H0Y796;H0Y4W5";F13A1;Coagulation factor XIII A chain;P00488;coagulation_UpPlasma;Increased in plasma
+"P01008;Q8TCE1";SERPINC1;Antithrombin-III;P01008;coagulation_UpPlasma;Increased in plasma
+P02775;PPBP;"Platelet basic protein;Connective tissue-activating peptide III;TC-2;Connective tissue-activating peptide III(1-81);Beta-thromboglobulin;Neutrophil-activating peptide 2(74);Neutrophil-activating peptide 2(73);Neutrophil-activating peptide 2;TC-1;Neutrophil-activating peptide 2(1-66);Neutrophil-activating peptide 2(1-63)";P02775;coagulation_UpSerum;Increased in serum
+"P00734;E9PIT3;CON__P00735";F2;"Prothrombin;Activation peptide fragment 1;Activation peptide fragment 2;Thrombin light chain;Thrombin heavy chain";"P00734;E9PIT3";coagulation_UpPlasma;Increased in plasma
+"P07359;A0A0C4DGZ8";GP1BA;"Platelet glycoprotein Ib alpha chain;Glycocalicin";"P07359;A0A0C4DGZ8";coagulation_UpSerum;Increased in serum
+"Q16610;Q16610-4;Q16610-2";ECM1;Extracellular matrix protein 1;"Q16610;Q16610-4;Q16610-2";coagulation_UpPlasma;Increased in plasma
+"P10909;P10909-4;P10909-5;P10909-2;P10909-3;H0YC35;H0YLK8;E7ERK6;E7ETB4;H0YAS8;E5RJZ5;E5RGB0;E5RH61;E5RG36";CLU;"Clusterin;Clusterin beta chain;Clusterin alpha chain;Clusterin";"P10909;P10909-4;P10909-5;P10909-2;P10909-3;H0YC35;H0YLK8";coagulation_UpSerum;Increased in serum
+"P15924;P15924-3;P15924-2";DSP;Desmoplakin;"P15924;P15924-3;P15924-2";coagulation_UpPlasma;Increased in plasma
+"O75083;D6RD66;O75083-3";WDR1;WD repeat-containing protein 1;"O75083;D6RD66";coagulation_UpPlasma;Increased in plasma
+"O75882;O75882-3;O75882-2;Q5VV63";ATRN;Attractin;"O75882;O75882-3;O75882-2";coagulation_UpSerum;Increased in serum
+P40197;GP5;Platelet glycoprotein V;P40197;coagulation_UpSerum;Increased in serum
+"P05154;G3V5Q9;G3V2M1;G3V264;G3V482;G3V265;G3V5I3;G3V4B4;G3V3F5";SERPINA5;Plasma serine protease inhibitor;"P05154;G3V5Q9;G3V2M1";coagulation_UpPlasma;Increased in plasma
+"Q9NZP8;H0YFL7;F5GWF3;F5H7C8;F5H6S5;F5H2Z5";C1RL;Complement C1r subcomponent-like protein;Q9NZP8;coagulation_UpSerum;Increased in serum
+"P33908;P33908-2";MAN1A1;Mannosyl-oligosaccharide 1,2-alpha-mannosidase IA;"P33908;P33908-2";coagulation_UpSerum;Increased in serum
+"P03951;P03951-2;X6R3B1;D6RB32;H0Y596";F11;"Coagulation factor XI;Coagulation factor XIa heavy chain;Coagulation factor XIa light chain";"P03951;P03951-2";coagulation_UpPlasma;Increased in plasma
+"P01042-2;P01042-3";KNG1;"Kininogen-1;Kininogen-1 heavy chain;T-kinin;Bradykinin;Lysyl-bradykinin;Kininogen-1 light chain;Low molecular weight growth-promoting factor";"P01042-2;P01042-3";coagulation_UpSerum;Increased in serum
+"P06276;F8WF14;F8WEX7;H0Y885;H7C4Y0";BCHE;"Cholinesterase;Carboxylic ester hydrolase";"P06276;F8WF14;F8WEX7";coagulation_UpSerum;Increased in serum
+"P80108;P80108-2";GPLD1;Phosphatidylinositol-glycan-specific phospholipase D;P80108;coagulation_UpSerum;Increased in serum
+"P07996;CON__Q28194;P07996-2;A8MZG1";THBS1;Thrombospondin-1;"P07996;CON__Q28194;P07996-2";coagulation_UpSerum;Increased in serum
+P48740;MASP1;"Mannan-binding lectin serine protease 1;Mannan-binding lectin serine protease 1 heavy chain;Mannan-binding lectin serine protease 1 light chain";P48740;coagulation_UpSerum;Increased in serum
+"Q6N022;H0YCJ4";TENM4;Teneurin-4;"Q6N022;H0YCJ4";coagulation_UpSerum;Increased in serum
+"P98160;Q5SZJ2;Q5SZJ1;Q5SZI9";HSPG2;"Basement membrane-specific heparan sulfate proteoglycan core protein;Endorepellin;LG3 peptide";P98160;coagulation_UpSerum;Increased in serum
+"P02656;B0YIW2";APOC3;Apolipoprotein C-III;"P02656;B0YIW2";coagulation_UpPlasma;Increased in plasma
+"P33151;I3L1J2;P33151-2;H3BPG1;H3BR64;H3BR11";CDH5;Cadherin-5;"P33151;I3L1J2;P33151-2";coagulation_UpSerum;Increased in serum
+"P02788;E7EQB2;E7ER44;P02788-2;C9JCF5";LTF;"Lactotransferrin;Lactoferricin-H;Kaliocin-1;Lactoferroxin-A;Lactoferroxin-B;Lactoferroxin-C";"P02788;E7EQB2;E7ER44;P02788-2";coagulation_UpSerum;Increased in serum
+P01034;CST3;Cystatin-C;P01034;coagulation_UpSerum;Increased in serum
+"P04070;E7END6;P04070-2;H7BYX9;E7ENR9;E7EU72;E7EVH6";PROC;"Vitamin K-dependent protein C;Vitamin K-dependent protein C light chain;Vitamin K-dependent protein C heavy chain;Activation peptide";"P04070;E7END6;P04070-2";coagulation_UpSerum;Increased in serum
+"P02776;P10720";"PF4;PF4V1";"Platelet factor 4;Platelet factor 4, short form;Platelet factor 4 variant;Platelet factor 4 variant(4-74);Platelet factor 4 variant(5-74);Platelet factor 4 variant(6-74)";"P02776;P10720";coagulation_UpSerum;Increased in serum

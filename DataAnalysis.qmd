@@ -1,0 +1,375 @@
+---
+title: "QC data on Spectronaut BGS report"
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+  pdf:
+    toc: true
+    number-sections: true
+    papersize: a4
+    mainfont: Calibri
+    execute:
+      echo: false
+      warning: false
+---
+
+## Load data and packages
+
+Data is loaded from Spectronaut BGS Extended report. Report contains peptide and protein information.
+
+```{r,pl}
+source("source.R")
+source("functions.R")
+file = "raw/20250703_073723_StemCells_ANWR_Run5_Plasma_PE_Report.tsv"
+dfBGS <- data.table::fread(file)
+```
+
+### Calculate search summaries
+
+```{r}
+data.frame("File" = file,
+           "Size, GB" = file.info(file)$size/1024^3,
+           "Date" = file.info(file)$mtime,
+           "FASTA" = dfBGS %>% distinct(E.LFQMethod, PG.FASTAName) %>% group_by(PG.FASTAName) %>%  summarise(n = paste(PG.FASTAName, collapse = ";")) %>% pull(n),
+           "Species" = dfBGS %>% distinct(E.LFQMethod, PEP.AllOccurringOrganisms) %>% group_by(E.LFQMethod) %>%  summarise(n = paste(PEP.AllOccurringOrganisms, collapse = ";")) %>% pull(n),
+           "Errors" = dfBGS %>% head(1) %>% pull(E.Errors),
+           "Warnings" = dfBGS %>% head(1) %>% pull(E.Warnings),
+           "Files" = dfBGS %>% distinct(R.FileName) %>% nrow(),
+           "Conditions" = dfBGS %>% distinct(R.Condition) %>% nrow()) -> r
+```
+
+**Search summary:** Search file `{r} r$File` (`{r} r$Size`GB) is last modified `{r} r$Date`.\
+Search contains `{r} r$Files` files across `{r} r$Conditions` conditions.\
+Files are searched against database `{r} r$FASTA`(`{r} r$Species`) with `{r} r$Errors` errors and `{r} r$Warnings` warnings.
+
+### Sample table
+
+Summary table of samples. Unique proteins, peptides, mean missed cleavage and summed intensity is calculated.
+
+```{r}
+dfBGS %>% 
+  SummaryTableSamples(exportTable = T) -> t
+```
+
+### Condition table
+
+Summary table calculating files per condition, mean number of proteins, min/max number of proteins, mean number of peptides and min/max number of peptides.
+
+```{r}
+dfBGS %>% 
+  SummaryTableConditions() -> s
+
+s
+```
+
+### Samples per condition
+
+Bar plot of number of raw files in each condition.
+
+```{r}
+dfBGS %>% 
+  MDBL_SamplesPerCondition()
+```
+
+### Missed cleavages
+
+Plot of number of missed cleavages in the peptides identified per sample. Plot is grouped on condition and scaled to 100%.
+
+```{r}
+dfBGS %>% 
+  MDBL_PlotMissedCleavage()
+```
+
+### Proteins per raw file
+
+Box plot of number of unique proteins identified per raw file. Plot is grouped on condition.
+
+```{r}
+dfBGS %>% 
+  MDBL_ProteinsPerFileBoxplot()
+```
+
+### Proteins per condition
+
+Bar plot of total number of unique proteins identified per condition.
+
+```{r}
+dfBGS %>% 
+  distinct(R.Condition, PG.ProteinAccessions) %>% 
+  group_by(R.Condition) %>% 
+  tally() %>% 
+  ggplot(aes(n, R.Condition, fill=R.Condition, label=n))+
+  geom_col()+
+  geom_text(hjust=1.3)+
+  labs(title="Unique proteins per condition", x="unique proteins", y="")+
+  theme_minimal()+
+  theme(legend.position = "none")
+```
+
+### Proteins per raw file
+
+Bar plot of unique proteins identified per sample. Plot is grouped on conditions.
+
+```{r}
+dfBGS %>% 
+  MDBL_ProteinsPerFileBarplot()
+```
+
+### Summed Intensities
+
+```{r}
+dfBGS %>% 
+  distinct(R.FileName, R.Condition, PG.ProteinAccessions, PG.Quantity) %>% 
+  group_by(R.FileName, R.Condition) %>% 
+  summarize(SummedIntensity = log10(sum(PG.Quantity, na.rm = T))) %>% 
+  ggplot(aes(SummedIntensity, R.Condition, fill=R.Condition))+
+  geom_boxplot(outlier.shape = NA)+
+  geom_jitter(alpha=0.3, height = 0.2, pch=16)+
+  labs(title="Summed intensities per rawfile", x="Summed intensity [log10]", y="")+
+  theme_minimal()+
+  theme(legend.position = "none",
+        panel.grid.minor.y = element_blank(),
+        panel.grid.minor.x = element_blank())
+```
+
+### test, peptides per minute
+
+```{r}
+dfBGS %>%  
+  ggplot(aes(EG.ApexRT, group=R.FileName, color=R.Condition))+
+  #geom_histogram(binwidth = 0.5)+
+  geom_density() +
+  facet_wrap(~R.Condition)+
+  labs(title="Peptides identified per minutte", subtitle="", x="", y="")+
+  theme_minimal()+
+  theme(legend.position = "none")
+```
+
+### Peptide indentifications per second
+
+```{r}
+my_bins <- c(seq(0, 12, by=0.0166667))
+
+for(n in dfBGS %>% distinct(R.Condition) %>% pull(R.Condition)){
+  dfBGS %>% 
+    #filter(R.Condition == n) %>% 
+  select(R.FileName, R.Condition, EG.ApexRT) %>% 
+  mutate(binned = cut(EG.ApexRT, my_bins)) %>% 
+  mutate(bin = str_remove(binned, ",.*")) %>% 
+  mutate(bin = as.numeric(str_remove(bin, "[(]" ))) %>% 
+  group_by(R.Condition, R.FileName, bin) %>%
+  count() %>%  
+  ggplot(aes(bin, n, group=R.FileName, color=R.Condition))+
+  geom_line()+
+  facet_wrap(~R.FileName, ncol=3)+
+  labs(title=paste0("Peptides identified in ",n, " per second"), subtitle="", x="", y="")+
+  theme_minimal()+
+  theme(legend.position = "none") -> p
+  plot(p)
+}
+```
+
+### test plot
+
+```{r}
+t %>% 
+  mutate(SummedIntensity = log10(SummedIntensity)) %>% 
+ggplot(aes(SummedIntensity, R.FileName, fill=R.Condition, color=R.Condition))+
+geom_col()+
+  labs(title="", subtitle="", x="", y="")+
+  theme_minimal()+
+  theme(legend.position = "none",
+        axis.text.y = element_blank())
+```
+
+### Protein intensity distributions
+
+```{r}
+dfBGS %>% 
+  MDBL_PlotIntensityDensity()
+```
+
+### CV for each protein in condition
+
+```{r}
+dfBGS %>% 
+  MDBL_PlotCV()
+```
+
+### CV for each protein in condition with VV filtering
+
+```{r}
+dfBGS %>%
+  MDBL_FilterVV(0.2) %>% 
+  MDBL_PlotCV()
+```
+
+### Data completeness
+
+```{r}
+dfBGS %>% 
+  MDBL_DataCompleteness()
+```
+
+### S-curve
+
+```{r}
+dfBGS %>% 
+  distinct(R.Condition, PG.ProteinAccessions, R.FileName, PG.Quantity) %>% 
+  filter(!is.na(PG.Quantity)) %>% 
+  mutate(PG.Quantity = log(base=10, PG.Quantity)) %>% 
+  group_by(R.FileName) %>% 
+  arrange(desc(PG.Quantity)) %>% 
+  mutate(n=row_number()) %>% 
+  ungroup() %>% 
+  ggplot(aes(n, PG.Quantity, group=R.FileName, color=R.Condition))+
+  geom_line()+
+  facet_wrap(~R.Condition, scales = "free_x")+
+  labs(title="Intensity distribution, S-curve", x="proteins", y="[log10]Intensity")+
+  theme_minimal()+
+  theme(legend.position = "none")
+```
+
+### Peptides per protein
+
+This is based on a grouping per protein in each group. So a 1 means a protein identified with only one peptide for all samples in this group.
+
+```{r}
+dfBGS %>% 
+  distinct(R.Condition, PG.ProteinAccessions, EG.ModifiedPeptide) %>%
+  group_by(R.Condition, PG.ProteinAccessions) %>% 
+  tally(name = "peptides_per_protein") %>% 
+  arrange(peptides_per_protein) %>% 
+  group_by(R.Condition) %>% 
+  mutate(row = row_number()) %>% 
+  ggplot(aes(row, peptides_per_protein, color=R.Condition))+
+  geom_step()+
+  scale_y_log10()+
+  facet_wrap(~R.Condition, scale = "free")+
+  labs(title="Unique modified peptides per protein in group", x="proteins", y="peptides")+
+  theme_minimal()+
+  theme(legend.position = "none")
+```
+
+### Peptides per protein per raw file
+
+This is based on average number of peptides per protein across groups. So a 1 means that a given protein is only identified with 1 peptide on average across all samples in group.
+
+```{r}
+dfBGS %>% 
+  distinct(R.FileName, R.Condition, PG.ProteinAccessions, EG.ModifiedPeptide) %>%
+  group_by(R.FileName, R.Condition, PG.ProteinAccessions) %>% 
+  tally(name = "peptides_per_protein") %>% 
+  ungroup() %>% 
+  group_by(R.Condition, PG.ProteinAccessions) %>% 
+  summarise(n = n(),
+            mean = mean(peptides_per_protein)) %>% 
+  arrange(mean) %>% 
+  group_by(R.Condition) %>% 
+  mutate(row = row_number()) %>% 
+  ggplot(aes(row, mean, color=R.Condition))+
+  geom_step()+
+  scale_y_log10()+
+  facet_wrap(~R.Condition, scale = "free")+
+  labs(title="Average number of unique modified peptides per protein per sample in group", x="proteins", y="peptides")+
+  theme_minimal()+
+  theme(legend.position = "none")
+```
+
+### Plasma QC
+
+```{r}
+dfPlasmaQC <- read.csv("PlasmaQC/CleanList.csv", sep=";") %>% 
+  rename(PG.Genes = Gene.names)
+cutoff_sd = 2
+
+#plot
+dfBGS %>%
+  filter(!str_detect(R.FileName, "ET_QC")) %>% 
+  select(R.FileName, PG.Genes, PG.Quantity, R.Condition) %>% 
+  mutate(PG.Genes = toupper(PG.Genes)) %>% 
+  mutate(PG.Genes = str_remove(PG.Genes, ";.*")) %>% 
+  left_join(dfPlasmaQC, by = join_by(PG.Genes), relationship = "many-to-many") %>% 
+  mutate(Type = as.character(Type)) %>% 
+  mutate(Type = replace_na(Type, "Plasma")) %>% 
+  group_by(R.FileName, Type) %>% 
+  summarise(sum = sum(PG.Quantity, na.rm = T)) %>% 
+  mutate(sum = log10(sum)) %>% 
+  ungroup() %>%
+  pivot_wider(names_from = Type, values_from = sum) %>% 
+  mutate(erythrocyte_Index = erythrocyte/Plasma,
+         platelet_Index = platelet/Plasma,
+         #coagulationSerum_Index = Plasma/coagulation_UpSerum,
+         coagulationPlasma_Index = Plasma/coagulation_UpPlasma) %>% 
+  select(R.FileName, contains("_Index")) %>% 
+  #select(name, contains("platelet_Index")) %>% 
+  pivot_longer(names_to =  "key", values_to =  "val", -R.FileName) %>% 
+  filter(!is.na(val)) %>% 
+  group_by(key) %>% 
+  mutate(sd = sd(val, na.rm = T),
+         mean = mean(val, na.rm = T),
+         outlier = ifelse(val>(mean+cutoff_sd*sd),TRUE,FALSE),
+         label_outlier = ifelse(outlier==TRUE,R.FileName,"")) -> dfTemp
+
+dfTemp %>% 
+  ggplot(aes(R.FileName,val, fill=outlier))+
+  geom_col(show.legend = F, width = 1)+
+  geom_text(aes(label = label_outlier), hjust = "inward",  size=3)+
+  scale_fill_manual(values = c("grey80", "red")) + 
+  geom_hline(aes(yintercept = mean + (1*sd)), color="blue", linetype = "dashed")+ #plus 1 sd
+  geom_hline(aes(yintercept = mean + (2*sd)), color="blue", linetype = "dashed")+ #plus 2 sd
+  geom_hline(aes(yintercept = mean + (3*sd)), color="blue", linetype = "dashed")+ #plus 3 sd
+  facet_wrap(~key, scales = "free_x", ncol=3)+
+  theme_minimal()+
+  coord_flip()+
+  labs(title="Plasma Proteome Profiling QC", subtitle=paste(cutoff_sd,"x sd cutoff", sep = ""), x="", y="")+
+  theme_minimal()+
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.text.y = element_blank())
+
+dfTemp %>% 
+  filter(outlier == T) %>% 
+  arrange(key) 
+```
+
+### Heatmap
+
+```{r}
+dfBGS %>% 
+  MDBL_HeatMap()
+```
+
+### UMAP, not working
+
+```{r echo=FALSE, eval=FALSE}
+library(M3C)
+
+dfBGS %>% 
+  MDBL_FilterVV(pct=1) -> t # filter to 100% VV
+
+dfBGS %>% 
+  distinct(R.FileName, PG.Quantity, PG.ProteinAccessions) %>% 
+  filter(PG.ProteinAccessions %in% as.list(t$PG.ProteinAccessions)) %>% 
+  pivot_wider(names_from = R.FileName, values_from = PG.Quantity) %>% 
+  column_to_rownames("PG.ProteinAccessions") -> umap.prep
+  
+umap.prep %>% 
+  names() %>% as_tibble() %>% head()
+  left_join(t)
+  mutate(Type = ff(value, c("Healthy","HFrEF","HFpEF","Plasma-St", "MS-St"))) %>% 
+  mutate(Healthy = if_else(Type=="Healthy", value, ""))-> umap.labels
+  
+umap(umap.prep, 
+     seed = 123,
+     labels = as.vector(umap.labels$Type),
+     #text = umap.labels$Healthy,
+     textlabelsize = 3,
+     dotsize = 2,
+     axistextsize=10,
+     legendtextsize = 10)+
+   # stat_ellipse(geom = "polygon", aes(fill=umap.labels$Type, alpha=0.05), show.legend = F)+
+  labs(title="UMAP", subtitle = "473 proteins with 100% valid values")+
+  theme_minimal()
+```
