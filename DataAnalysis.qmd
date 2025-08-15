@@ -2,6 +2,7 @@
 title: "QC data on Spectronaut BGS report"
 format:
   html:
+    toc: true
     code-fold: true
     code-summary: "Show the code"
   pdf:
@@ -9,6 +10,11 @@ format:
     number-sections: true
     papersize: a4
     mainfont: Calibri
+    geometry:
+      - top=15mm
+      - left=15mm
+      - right=15mm
+      - heightrounded
     execute:
       echo: false
       warning: false
@@ -18,16 +24,17 @@ format:
 
 Data is loaded from Spectronaut BGS Extended report. Report contains peptide and protein information.
 
-```{r,pl}
+```{r,data_load}
 source("source.R")
 source("functions.R")
 file = "raw/20250703_073723_StemCells_ANWR_Run5_Plasma_PE_Report.tsv"
 dfBGS <- data.table::fread(file)
 ```
 
+## Simple summaries
 ### Calculate search summaries
 
-```{r}
+```{r, summaries}
 data.frame("File" = file,
            "Size, GB" = file.info(file)$size/1024^3,
            "Date" = file.info(file)$mtime,
@@ -39,24 +46,30 @@ data.frame("File" = file,
            "Conditions" = dfBGS %>% distinct(R.Condition) %>% nrow()) -> r
 ```
 
-**Search summary:** Search file `{r} r$File` (`{r} r$Size`GB) is last modified `{r} r$Date`.\
-Search contains `{r} r$Files` files across `{r} r$Conditions` conditions.\
-Files are searched against database `{r} r$FASTA`(`{r} r$Species`) with `{r} r$Errors` errors and `{r} r$Warnings` warnings.
+**Search summary:**\n  
+Search file "`{r} r$File[1]`" (`{r} r$Size[1]`GB) is last modified `{r} r$Date[1]`.  
+Search contains `{r} r$Files[1]` files across `{r} r$Conditions[1]` conditions.  
+Files are searched against database(s) `{r} paste0(r %>% separate_rows(FASTA, sep=";") %>% distinct(FASTA) %>% pull(FASTA), collapse="; ")` (`{r} paste0(r %>% separate_rows(Species, sep=";") %>% distinct(Species) %>% pull(Species), collapse="; ")`) with `{r} r$Errors[1]` errors and `{r} r$Warnings[1]` warnings.
 
+## Samples and Conditions
 ### Sample table
 
 Summary table of samples. Unique proteins, peptides, mean missed cleavage and summed intensity is calculated.
-
-```{r}
+Table is only printed if number of samples is 20 or less.
+```{r, table_samples}
 dfBGS %>% 
   SummaryTableSamples(exportTable = T) -> t
+
+if (r$Files[1]<=20) {
+  t
+}
 ```
 
 ### Condition table
 
 Summary table calculating files per condition, mean number of proteins, min/max number of proteins, mean number of peptides and min/max number of peptides.
 
-```{r}
+```{r, table_conditions}
 dfBGS %>% 
   SummaryTableConditions() -> s
 
@@ -67,25 +80,50 @@ s
 
 Bar plot of number of raw files in each condition.
 
-```{r}
+```{r, rawfiles_per_condition}
 dfBGS %>% 
   MDBL_SamplesPerCondition()
 ```
 
+## Peptides  
 ### Missed cleavages
 
 Plot of number of missed cleavages in the peptides identified per sample. Plot is grouped on condition and scaled to 100%.
 
-```{r}
+```{r, missed_cleavage}
 dfBGS %>% 
   MDBL_PlotMissedCleavage()
 ```
 
+### Peptides identified per second across gradient
+
+The following plot will show how optimized method is for samples and consistancy between samples. By default the counts are averaged across 10s (6 data points per minute)
+```{r}
+average_across_s = 10
+my_bins <- c(seq(0, max(dfBGS$EG.ApexRT)+0.1, by=0.0166667*average_across_s))
+
+dfBGS %>%  
+  mutate(binned = cut(EG.ApexRT, breaks = my_bins)) %>%
+  mutate(bin = str_remove(binned, ",.*")) %>% 
+  mutate(bin = as.numeric(str_remove(bin, "[(]" ))) %>% 
+  count(R.Condition, R.FileName, bin) %>% 
+  mutate(n=n/average_across_s)-> t
+  
+t %>% ggplot(aes(bin, n, group=R.FileName, color=R.FileName))+
+  geom_line()+
+  scale_x_continuous(breaks = seq(0,99,1))+
+  facet_wrap(~R.Condition)+
+  labs(title="Peptides identified per second", subtitle=paste0("Averaged across ", average_across_s, " second(s)"), x="Gradient time", y="Peptides identified")+
+  theme_minimal()+
+  theme(legend.position = "none")
+```
+
+## Proteins  
 ### Proteins per raw file
 
 Box plot of number of unique proteins identified per raw file. Plot is grouped on condition.
 
-```{r}
+```{r, proteins_per_sample_boxplot}
 dfBGS %>% 
   MDBL_ProteinsPerFileBoxplot()
 ```
@@ -94,7 +132,7 @@ dfBGS %>%
 
 Bar plot of total number of unique proteins identified per condition.
 
-```{r}
+```{r, proteins_per_condition_barplot}
 dfBGS %>% 
   distinct(R.Condition, PG.ProteinAccessions) %>% 
   group_by(R.Condition) %>% 
@@ -111,7 +149,7 @@ dfBGS %>%
 
 Bar plot of unique proteins identified per sample. Plot is grouped on conditions.
 
-```{r}
+```{r, proteins_per_sample_barplot}
 dfBGS %>% 
   MDBL_ProteinsPerFileBarplot()
 ```
@@ -133,57 +171,9 @@ dfBGS %>%
         panel.grid.minor.x = element_blank())
 ```
 
-### test, peptides per minute
-
-```{r}
-dfBGS %>%  
-  ggplot(aes(EG.ApexRT, group=R.FileName, color=R.Condition))+
-  #geom_histogram(binwidth = 0.5)+
-  geom_density() +
-  facet_wrap(~R.Condition)+
-  labs(title="Peptides identified per minutte", subtitle="", x="", y="")+
-  theme_minimal()+
-  theme(legend.position = "none")
-```
-
-### Peptide indentifications per second
-
-```{r}
-my_bins <- c(seq(0, 12, by=0.0166667))
-
-for(n in dfBGS %>% distinct(R.Condition) %>% pull(R.Condition)){
-  dfBGS %>% 
-    #filter(R.Condition == n) %>% 
-  select(R.FileName, R.Condition, EG.ApexRT) %>% 
-  mutate(binned = cut(EG.ApexRT, my_bins)) %>% 
-  mutate(bin = str_remove(binned, ",.*")) %>% 
-  mutate(bin = as.numeric(str_remove(bin, "[(]" ))) %>% 
-  group_by(R.Condition, R.FileName, bin) %>%
-  count() %>%  
-  ggplot(aes(bin, n, group=R.FileName, color=R.Condition))+
-  geom_line()+
-  facet_wrap(~R.FileName, ncol=3)+
-  labs(title=paste0("Peptides identified in ",n, " per second"), subtitle="", x="", y="")+
-  theme_minimal()+
-  theme(legend.position = "none") -> p
-  plot(p)
-}
-```
-
-### test plot
-
-```{r}
-t %>% 
-  mutate(SummedIntensity = log10(SummedIntensity)) %>% 
-ggplot(aes(SummedIntensity, R.FileName, fill=R.Condition, color=R.Condition))+
-geom_col()+
-  labs(title="", subtitle="", x="", y="")+
-  theme_minimal()+
-  theme(legend.position = "none",
-        axis.text.y = element_blank())
-```
-
 ### Protein intensity distributions
+
+Density plot showing the distribution of all proteins identified per sample.
 
 ```{r}
 dfBGS %>% 
@@ -213,7 +203,7 @@ dfBGS %>%
 ```
 
 ### S-curve
-
+Intensity of all proteins identified per sample arranged after intensity.
 ```{r}
 dfBGS %>% 
   distinct(R.Condition, PG.ProteinAccessions, R.FileName, PG.Quantity) %>% 
@@ -233,7 +223,7 @@ dfBGS %>%
 
 ### Peptides per protein
 
-This is based on a grouping per protein in each group. So a 1 means a protein identified with only one peptide for all samples in this group.
+This is based on a grouping per protein in each group. So a 1 means a protein identified with only one peptide across all samples in this group.
 
 ```{r}
 dfBGS %>% 
