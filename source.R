@@ -3,7 +3,9 @@ pacman::p_load(tidyverse,
                ggtext,
                showtext,
                patchwork,
-               gt)
+               gt,
+               janitor,
+               ggforce)
 
 Sys.setlocale("LC_TIME", "English")
 options(scipen=999)
