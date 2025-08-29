@@ -1,0 +1,155 @@
+---
+title: "ProteomicsWorkflow"
+author: "MDBL"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-summary: "Show the code"
+  pdf:
+    toc: true
+    number-sections: true
+    papersize: a4
+    mainfont: Calibri
+    geometry:
+      - top=15mm
+      - left=15mm
+      - right=15mm
+      - heightrounded
+    execute:
+      echo: false
+      warning: false
+---
+
+# Setup
+
+The following functions require the "ProteomicsWorkflow/source.R" and the "ProteomicsWorkflow/functions.R" files to be loaded. The files contain all functions designed for the workflow, helper functions and design elements
+
+## Load source
+
+```{r}
+source("source.R")
+source("functions.R")
+```
+
+## Functions
+
+Below are a description of each of the functions in the source file.
+
+### MDBL_ReadBGSFactoryReport
+
+#### Description
+
+This function loads data into R. It assumes that the data is in the FactoryBGS_Extended format from Spectronaut. This is not the default export and will have to be done either manually or as part of a pipeline.
+
+#### Input
+
+This function is the first in the workflow and will take Spectronaut data exported from Spectronaut in the 'Factory default BGS format'. It takes '.tsv' files only.
+
+#### Parameters
+
+-   path, full path to data formatted for R '\\'-\>'/'
+-   removeNA = T, Set to TRUE by default. Removes protein/peptides where PG.Quantity is 'NaN'
+
+#### Output
+
+Outputs data as data object\
+Print number of unique proteins identified, number of samples and number of conditions\
+Print number of peptides and number of proteins in dataset with 'PG.Quantity = NaN'\
+Print if peptides/proteins with 'PG.Quantity = NaN' has been removed
+
+#### Comments
+
+This is a time consuming function because of the reading of the large data so saving to a dataframe for easier access downstream speeds up any subsequent steps. This is done by adding 'df \<-' before the function (shown in example).
+
+#### Examples
+
+```{r}
+#| eval: false
+# Standard use
+MDBL_ReadBGSReport("//sc19/dept1998/Personal/MDBL/05-Code/raw/20250826_082431_20250620_YABH_JAK1_RPTEC_Exp2-Cocktail-ASO_cells_Report.tsv", RemoveNA = T) 
+```
+
+```{r}
+# Standard use with storing the data as a dataframe
+df <- MDBL_ReadBGSReport("//sc19/dept1998/Personal/MDBL/05-Code/raw/20250826_082431_20250620_YABH_JAK1_RPTEC_Exp2-Cocktail-ASO_cells_Report.tsv", RemoveNA = T)
+```
+
+### MDBL_ReadCandidatesReport
+
+#### Description
+
+This function loads the candidates data for a given dataset into R. It assumes that the data is in the Candidates table format from Spectronaut.
+
+#### Input
+
+Input format
+
+#### Parameters
+
+possible parameters
+
+#### Output
+
+Output description
+
+#### Comments
+
+#### Examples
+
+```{r}
+
+```
+
+### MDBL_PrintSummary
+
+#### Description
+
+Function will print short summary of dataset
+
+#### Input
+
+Spectronaut data
+
+#### Parameters
+
+No parameters
+
+#### Output
+
+Short description of data (Number of proteins, samples and conditions) Data will not be parsed through this function making it useful for ending a workflow.
+
+#### Comments
+
+#### Examples
+
+```{r}
+df %>% 
+  MDBL_PrintSummary()
+```
+
+### MDBL_Template
+
+#### Description
+
+Short description
+
+#### Input
+
+Input format
+
+#### Parameters
+
+possible parameters
+
+#### Output
+
+Output description
+
+#### Comments
+
+#### Examples
+
+```{r}
+
+```

@@ -1,7 +1,7 @@
 source("source.R")
 source("functions.R")
-file = "raw/20220909_144243_20210817_XP1_YABH_MouseHF_PlasmaProt_Top2MDe_ProtPepMDBL_Report.tsv"
-dfBGS <- data.table::fread(file)
+file = "raw/20240725_095500_MFGE8_BMDiscovery_directDIA_crossExperiment_LYTL_RHZZ_Report.tsv"
+df <- data.table::fread(file)
 
 
 MDBL_NameShortening <- function(data){
@@ -10,15 +10,15 @@ MDBL_NameShortening <- function(data){
   mutate(NameLength=str_length(R.FileName)) -> t
 
 for(n in max(t$NameLength):3){
-  data %>% 
+  t %>% 
     mutate(name = str_trunc(R.FileName, n, ellipsis = "")) %>%  
     distinct(name) %>% nrow() -> s
   if(s==1){
-    print(n)
-    dfBGS %>% 
+    
+    t %>% 
       mutate(name = str_trunc(R.FileName, n, ellipsis = "")) %>%  
       distinct(name) %>% pull(name) -> k
-    print(k)
+    print(paste0("String to remove: ",k))
     break 
   }
   
@@ -28,5 +28,5 @@ for(n in max(t$NameLength):3){
   return(data)
 }
 
-dfBGS %>% 
-  MDBL_ProteinsPerFileBoxplot()
+df %>% 
+  MDBL_NameShortening()

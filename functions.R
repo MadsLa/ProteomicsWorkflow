@@ -1,5 +1,17 @@
 source("source.R")
 
+
+
+MDBL_PrintSummary <- function(data){
+  force(data)
+  print("Summary:")
+  print(paste0(" - ", data %>% distinct(PG.ProteinAccessions) %>% nrow(), " unique proteins"))
+  print(paste0(" - ", data %>% distinct(R.FileName) %>% nrow(), " samples"))
+  print(paste0(" - ", data %>% distinct(R.Condition) %>% nrow(), " conditions"))
+}
+
+
+
 # SummaryTableSamples
 'Makes simple count per filename'
 SummaryTableSamples <- function(data, exportTable = F){

@@ -11,7 +11,7 @@ Sys.setlocale("LC_TIME", "English")
 options(scipen=999)
 options(dplyr.summarise.inform = FALSE)
 
-list <- c("#A9AF7E", "#557153", "#D9DCCA", "#394D3F", "#CABBA2", "#7E9B76", "#E0E5C1", "#6C7B6B", "#9C9C5E", "#8A9483")
+#list <- c("#A9AF7E", "#557153", "#D9DCCA", "#394D3F", "#CABBA2", "#7E9B76", "#E0E5C1", "#6C7B6B", "#9C9C5E", "#8A9483")
 
 
 ff = function(x, patterns, replacements = patterns, fill = NA, ...)
