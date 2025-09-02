@@ -1,0 +1,1 @@
+"TestFilename.Rdata"	"LCMS proteomics"	"Prepare_for_ProteoExplorer_DummyData"	"Other_137"	"Blood Plasma"	"BTO:0000131"	"Mouse"	"10090"
