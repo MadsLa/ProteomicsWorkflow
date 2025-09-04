@@ -1,6 +1,8 @@
 source("source.R")
 source("new_functions.R")
 
+gc() # clear memory
+
 importBGS <- "raw/20250826_081536_20220329_QE5_YABH_PlasmaProt_Groningen_pEF-Healthy_SP_MQ+hybrid search_Report.tsv"
 importCandidates <- "raw/20250826_081536_20220329_QE5_YABH_PlasmaProt_Groningen_pEF-Healthy_SP_MQ+hybrid search_Report_candidates.tsv"
 
@@ -9,7 +11,7 @@ MDBL_CheckBGSReport(importBGS)
 MDBL_CheckCandidatesReport(importCandidates)
 
 #---- Load file
-dfBGS <- MDBL_LoadBGSReport(importBGS)
+dfBGS <- MDBL_LoadBGSReport(importBGS, n = Inf)
 dfCandidates <- MDBL_LoadCandidateesReport(importCandidates)
 
 #---- Proteins
