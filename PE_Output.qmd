@@ -1,0 +1,110 @@
+---
+title: "PE_Upload"
+format: pdf
+editor: visual
+---
+
+## Preparing data for ProteinExplorer upload
+
+This document will prepare the required files for integrating Spectronaut searches into the ProteinExplorer viewer.
+
+The input needed are the Factory BGS report with genes added and the candidates list.
+
+Files can be read from network drives.
+
+### Required info
+
+-   **fileBGSReport** - Full standard report where genes are part of the export. This file will typically be in the 1-12GB size range. File must be in .tsv format.
+
+-   **fileCandidates** - Export of candidates list from Spectronaut. When exporting
+
+```{r}
+fileBGSReport <- "raw/20250826_081536_20220329_QE5_YABH_PlasmaProt_Groningen_pEF-Healthy_SP_MQ+hybrid search_Report.tsv"
+fileCandidates <- "raw/20250826_081536_20220329_QE5_YABH_PlasmaProt_Groningen_pEF-Healthy_SP_MQ+hybrid search_Report_candidates.tsv"
+```
+
+#### Meta data:
+
+The following meta data tags must be typed in below.
+
+|  |  |
+|----|----|
+| info_project |  |
+| Project_tag |  |
+| Labels |  |
+| **MS_Method** | Method used to generate MS data. "LC-MS proteomics, 24min, Astral, DIA" |
+| **Data responsible** | User(s) who generated data or who can be contacted for extra info on data. Multiple responsible can be separated by comma ("MDBL" or "MDBL, MDGR"). |
+| **Study responsible**: | User(s) who initiated the study/experiment. Multiple responsible can be separated by comma ("MDBL" or "MDBL, MDGR"). |
+| **Data responsible** | User(s) who generated data or who can be contacted for extra info on data. Multiple responsible can be separated by comma ("MDBL" or "MDBL, MDGR"). |
+| **Experimental_description** | Short description of experiment. Text will be merged/appended automatically with 'Data responsible', 'Study responsible' and number of proteins in data. |
+| **Project** | Official NN 4 digit project number plus project title in format "RP0753_FAM13A" or "0608_LAP1" |
+| **Tissue** | Short description of origin. "Cell line", "Cell supernatant", "Plasma", "Liver" |
+| **BRENDA** | Tissue ontology taken from <https://www.brenda-enzymes.org/ontology.php>. Format is "BTO:0000131" (blood plasma) |
+| **Organism** | in english ("Human", "Mouse") |
+| **Taxonomy** | Official UniProt taxonomy number (9606 = Human, 10090 = Mouse, |
+|  |  |
+
+```{r}
+info_project = "Prepare_for_ProteoExplorer_DummyData"
+Project_tag = "TestFilename"
+Labels = ""
+MS_method = "LCMS proteomics"
+Experimental_description = "Prepare_for_ProteoExplorer_DummyData"
+Project = "Other_137"
+Tissue = "Blood Plasma"
+BRENDA = "BTO:0000131"
+Organism = "Mouse"
+Taxonomy = "10090" #https://www.uniprot.org/taxonomy/10090
+```
+
+## Preparing data
+
+### Load helper functions
+
+```{r LoadLibraries}
+source("source.R")
+source("functions.R")
+```
+
+### Load files
+
+Set **RemoveNA** to **TRUE** (default setting) for removal of empty values. Script will count how many were removed during this process and print number. If set to **FALSE** empty values (NA) will be left in data set.
+
+Set **n** to [**Inf**]{.underline} or any digit to read only first n lines. Used to test script without loading massive reports.
+
+```{r LoadReport}
+dfBGS <- MDBL_ReadBGSReport(fileBGSReport, n=10000, RemoveNA = TRUE)
+```
+
+```{r LoadCandidates}
+
+dfCandidates <- "MDBL"
+```
+
+## Clean data
+
+### Shorten names
+
+```{r}
+
+```
+
+### 
+
+### Merge meta data into one object
+
+```{r MetaMerge}
+
+```
+
+### Merge data and meta data in one object
+
+```{r ObjectMerge}
+
+```
+
+### Save object and description
+
+```{r SaveObject}
+
+```

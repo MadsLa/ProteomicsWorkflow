@@ -9,7 +9,6 @@ format:
     toc: true
     number-sections: true
     papersize: a4
-    mainfont: Calibri
     geometry:
       - top=15mm
       - left=15mm
@@ -21,35 +20,23 @@ format:
 ---
 
 ## Load data and packages
-
-Data is loaded from Spectronaut BGS Extended report. Report contains peptide and protein information.
-
-```{r,data_load}
+Packages are collected in two files
+```{r}
 source("source.R")
 source("functions.R")
-file = "raw/20250703_073723_StemCells_ANWR_Run5_Plasma_PE_Report.tsv"
-dfBGS <- data.table::fread(file)
+```
+
+Data is loaded from Spectronaut BGS Extended report. Report contains peptide and protein information.
+```{r,data_load}
+file = "raw/20250826_081536_20220329_QE5_YABH_PlasmaProt_Groningen_pEF-Healthy_SP_MQ+hybrid search_Report.tsv"
+dfBGS <- MDBL_ReadBGSReport(file)
 ```
 
 ## Simple summaries
-### Calculate search summaries
-
-```{r, summaries}
-data.frame("File" = file,
-           "Size, GB" = file.info(file)$size/1024^3,
-           "Date" = file.info(file)$mtime,
-           "FASTA" = dfBGS %>% distinct(E.LFQMethod, PG.FASTAName) %>% group_by(PG.FASTAName) %>%  summarise(n = paste(PG.FASTAName, collapse = ";")) %>% pull(n),
-           "Species" = dfBGS %>% distinct(E.LFQMethod, PEP.AllOccurringOrganisms) %>% group_by(E.LFQMethod) %>%  summarise(n = paste(PEP.AllOccurringOrganisms, collapse = ";")) %>% pull(n),
-           "Errors" = dfBGS %>% head(1) %>% pull(E.Errors),
-           "Warnings" = dfBGS %>% head(1) %>% pull(E.Warnings),
-           "Files" = dfBGS %>% distinct(R.FileName) %>% nrow(),
-           "Conditions" = dfBGS %>% distinct(R.Condition) %>% nrow()) -> r
+```{r}
+MDBL_PrintSummary(dfBGS)
 ```
 
-**Search summary:**\n  
-Search file "`{r} r$File[1]`" (`{r} r$Size[1]`GB) is last modified `{r} r$Date[1]`.  
-Search contains `{r} r$Files[1]` files across `{r} r$Conditions[1]` conditions.  
-Files are searched against database(s) `{r} paste0(r %>% separate_rows(FASTA, sep=";") %>% distinct(FASTA) %>% pull(FASTA), collapse="; ")` (`{r} paste0(r %>% separate_rows(Species, sep=";") %>% distinct(Species) %>% pull(Species), collapse="; ")`) with `{r} r$Errors[1]` errors and `{r} r$Warnings[1]` warnings.
 
 ## Samples and Conditions
 ### Sample table
@@ -60,13 +47,16 @@ Table is only printed if number of samples is 20 or less.
 dfBGS %>% 
   SummaryTableSamples(exportTable = T) -> t
 
-if (r$Files[1]<=20) {
+if (nrow(t)<=20) {
   t
+} else {
+  print("Printing first 20 samples in set")
+  head(t)
 }
 ```
 
-### Condition table
 
+### Condition table
 Summary table calculating files per condition, mean number of proteins, min/max number of proteins, mean number of peptides and min/max number of peptides.
 
 ```{r, table_conditions}
@@ -111,7 +101,7 @@ dfBGS %>%
   
 t %>% ggplot(aes(bin, n, group=R.FileName, color=R.FileName))+
   geom_line()+
-  scale_x_continuous(breaks = seq(0,99,1))+
+  #scale_x_continuous(breaks = seq(0,99,1))+
   facet_wrap(~R.Condition)+
   labs(title="Peptides identified per second", subtitle=paste0("Averaged across ", average_across_s, " second(s)"), x="Gradient time", y="Peptides identified")+
   theme_minimal()+
@@ -191,7 +181,7 @@ dfBGS %>%
 
 ```{r}
 dfBGS %>%
-  MDBL_FilterVV(0.2) %>% 
+  filteringVV_AllSamples(0.2) %>% 
   MDBL_PlotCV()
 ```
 
@@ -221,10 +211,20 @@ dfBGS %>%
   theme(legend.position = "none")
 ```
 
+### Order of magnitudes covered per condition
+```{r}
+dfBGS %>% 
+  distinct(R.Condition, PG.ProteinAccessions, R.FileName, PG.Quantity) %>% 
+  filter(!is.na(PG.Quantity)) %>% 
+  group_by(PG.ProteinAccessions, R.Condition) %>%
+  summarise(median = median(PG.Quantity)) %>% 
+  group_by(R.Condition) %>% 
+  summarise(Decades = log10(max(median) - min(median)))
+```
+
 ### Peptides per protein
 
-This is based on a grouping per protein in each group. So a 1 means a protein identified with only one peptide across all samples in this group.
-
+This is based on a grouping per protein in each group. So a 1 means a protein identified with only 1 peptide across all samples in this group.
 ```{r}
 dfBGS %>% 
   distinct(R.Condition, PG.ProteinAccessions, EG.ModifiedPeptide) %>%
@@ -333,27 +333,28 @@ dfBGS %>%
 
 ### UMAP, not working
 
-```{r echo=FALSE, eval=FALSE}
+```{r eval=FALSE}
+#| include: false
 library(M3C)
 
 dfBGS %>% 
-  MDBL_FilterVV(pct=1) -> t # filter to 100% VV
+  filter(PG.Quantity > 0) %>% 
+  filteringVV_AllSamples(filter_value = 1) -> t # filter to 100% VV
 
 dfBGS %>% 
   distinct(R.FileName, PG.Quantity, PG.ProteinAccessions) %>% 
   filter(PG.ProteinAccessions %in% as.list(t$PG.ProteinAccessions)) %>% 
-  pivot_wider(names_from = R.FileName, values_from = PG.Quantity) %>% 
-  column_to_rownames("PG.ProteinAccessions") -> umap.prep
+  pivot_wider(names_from = R.FileName, values_from = PG.Quantity)  -> umap.prep
   
 umap.prep %>% 
-  names() %>% as_tibble() %>% head()
+  names() %>% as_tibble() %>% 
   left_join(t)
   mutate(Type = ff(value, c("Healthy","HFrEF","HFpEF","Plasma-St", "MS-St"))) %>% 
   mutate(Healthy = if_else(Type=="Healthy", value, ""))-> umap.labels
   
 umap(umap.prep, 
      seed = 123,
-     labels = as.vector(umap.labels$Type),
+     #labels = as.vector(umap.labels$Type),
      #text = umap.labels$Healthy,
      textlabelsize = 3,
      dotsize = 2,

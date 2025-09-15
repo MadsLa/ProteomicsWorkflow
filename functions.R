@@ -1,7 +1,8 @@
 source("source.R")
 
-MDBL_ReadBGSReport <- function(file, RemoveNA = T){
-  positiveList <- c("PG.Genes", "PG.ProteinAccessions", "PG.ProteinNames", "E.Errors", "E.Warnings", "R.Label", "R.Condition", "PG.FASTAName", "PG.Quantity", "PEP.StrippedSequence", "EG.ModifiedSequence", "PEP.AllOccurringOrganisms", "FALSE_TEST")
+MDBL_ReadBGSReport <- function(file, n=Inf, RemoveNA = T){
+  
+  positiveList <- c("R.FileName", "PG.Genes", "PG.ProteinAccessions", "PG.ProteinNames", "E.Errors", "E.Warnings", "R.Label", "R.Condition", "PG.FASTAName", "PG.Quantity", "PEP.StrippedSequence", "EG.ModifiedSequence", "PEP.AllOccurringOrganisms", "FG.Quantity", "E.LFQMethod")
   
   dfTemp <- data.table::fread(file, nrows=1, showProgress=T) %>% 
     names() %>% 
@@ -12,19 +13,24 @@ MDBL_ReadBGSReport <- function(file, RemoveNA = T){
     rowwise() %>% 
     mutate("Found in dataset" = as.logical(sum(str_detect(dfTemp$value, `Needed in dataset`))))-> p
   p %>% gt() -> q 
-  print(q)
+  #print(q)
   rm(dfTemp)
   
-  if((nrow(p) - sum(p$`Found in dataset`))==1){
+  if((nrow(p) - sum(p$`Found in dataset`)) == 0){
     print("All columns found, data being loaded")
-    dfTemp <- data.table::fread(file = file, showProgress=F)
-    print(paste0(length(unique(dfTemp$PG.ProteinAccessions)), " unique proteins identified across ", length(unique(dfTemp$R.FileName)), " samples in ", length(unique(dfTemp$R.Condition)) , " conditions"))
-    nProteins <- length(dfTemp %>%  distinct(PG.ProteinAccessions, R.FileName, PG.Quantity) %>% filter(is.na(PG.Quantity)))
-    nPeptides <- length(dfTemp %>%  filter(is.na(PG.Quantity)))
-    print(paste0(nPeptides, " peptides from ", nProteins, " proteins found with protein intensity as 'NaN'"))
+    dfTemp <- data.table::fread(file = file, nrows = n, showProgress=F)
+    dfTemp <- dfTemp %>% select(all_of(positiveList)) 
+    
+    print(paste0(length(unique(dfTemp$PG.ProteinAccessions)), " unique proteins identified coming from ",length(unique(dfTemp$EG.ModifiedSequence)), " peptides across ", length(unique(dfTemp$R.FileName)), " samples in ", length(unique(dfTemp$R.Condition)) , " conditions"))
+    
     if(RemoveNA == T){
-      dfTemp %>% filter(!is.na(PG.Quantity)) -> dfTemp
-      print("Peptides/Proteins with 'NaN' removed")
+      nProteins <- length(dfTemp %>%  distinct(PG.ProteinAccessions, PG.Quantity) %>% filter(is.na(PG.Quantity)))
+      nPeptides <- length(dfTemp %>%  filter(is.na(FG.Quantity)))
+      dfTemp %>% 
+        filter(!is.na(PG.Quantity)) -> dfTemp
+      
+      print(paste0(nProteins, " proteins with 'NaN' removed"))
+      print(paste0(nPeptides, " peptides with 'NaN' removed"))
     } else {
       print("Peptides/Proteins with 'NaN' NOT removed")
     }
@@ -42,7 +48,7 @@ MDBL_ReadBGSReport <- function(file, RemoveNA = T){
     
     print(as.data.frame(t(r)) %>% 
             rownames_to_column("Parameter") %>% 
-            rename("Value" = "V1") %>% gt())
+            rename("Value" = "V1"))
     
     return(dfTemp)
     
@@ -227,20 +233,42 @@ MDBL_ProteinsPerFileBoxplot <- function(data){
           panel.grid.minor.x = element_blank())
 }
 
-MDBL_FilterVV <- function(data, pct=0.3){
-  pctFilter=pct
-  data %>% 
-    distinct(R.FileName, R.Condition) %>% 
-    group_by(R.Condition) %>% 
-    tally(name = "n_all") -> dfTemp
+MDBL_FilterVV <- function(data, pctFilter=0.3, type = "all"){
+  if (type == "all") {
+    
+    data %>% 
+      distinct(R.FileName) %>% 
+      mutate("n_all" = length(unique(data$R.FileName))) -> dfTemp
+    
+    data %>% 
+      distinct(R.FileName, R.Condition, PG.Genes, PG.ProteinAccessions, PG.Quantity) %>%
+      group_by(PG.ProteinAccessions) %>%
+      mutate(n_condition = n()) %>% 
+      left_join(dfTemp, by = join_by(R.Condition)) %>% 
+      mutate(pct = n_condition/n_all) %>% 
+      filter(pct >= pctFilter) #-> data
+    
+  } else if (type == "condition") {
+    
+    data %>% 
+      distinct(R.FileName, R.Condition) %>% 
+      group_by(R.Condition) %>% 
+      tally(name = "n_all") -> dfTemp
+    
+  } else {
+    print("'type' only accepts 'all' or 'condition'")
+    break
+  }
   
-  data %>% 
-    distinct(R.FileName, R.Condition, PG.ProteinAccessions, PG.Quantity) %>%
+  
+  
+  dfBGS %>% 
+    distinct(R.FileName, R.Condition, PG.Genes, PG.ProteinAccessions, PG.Quantity) %>%
     group_by(R.Condition, PG.ProteinAccessions) %>%
     mutate(n_condition = n()) %>% 
     left_join(dfTemp, by = join_by(R.Condition)) %>% 
     mutate(pct = n_condition/n_all) %>% 
-    filter(pct>=pctFilter) -> data
+    filter(pct >= pctFilter) #-> data
   return(data)
 }
 
@@ -312,4 +340,194 @@ MDBL_tsne <- function(data){
     labs(title = "t-SNE Plot of Iris Dataset", subtitle = "Filtered for 100% valid values") +
     theme_minimal()
   
+}
+
+MDBL_RemoveSamples <- function(data, samples){
+  print("Removing samples:")
+  samples_in_data <- tibble(R.FileName = unique(df$R.FileName))
+  for(n in samples){
+    if(nrow(samples_in_data %>% filter(R.FileName == n ))>0){
+      data %>% filter(R.FileName != n) -> data
+      print(paste0("- ", n, " found in data and removed"))
+    } else {
+      print(paste0("- ERROR, ", n, " NOT found in data"))
+    }
+  }
+  
+  return(data)
+}
+
+MDBL_RemoveConditions <- function(data, groups){
+  print("Removing conditions:")
+  groups_in_data <- tibble(R.Condition = unique(df$R.Condition))
+  for(n in groups){
+    if(nrow(groups_in_data %>% filter(R.Condition == n ))>0){
+      data %>% filter(R.Condition != n) -> data
+      print(paste0("- ", n, " found in data and removed"))
+    } else {
+      print(paste0("- ERROR, ", n, " NOT found in data"))
+    }
+  }
+  
+  return(data)
+}
+
+MDBL_filteringVV_Plot <- function(data, filter_value = 0.7){
+  filter_value = filter_value
+  colorList <- scales::hue_pal()(3)
+  dfTemp <- data %>% 
+    distinct(PG.ProteinAccessions, R.FileName, R.Condition)
+  
+  dfTemp %>% 
+    distinct(R.FileName, R.Condition) %>% 
+    group_by(R.Condition) %>% 
+    summarise(grp_n = n()) %>% 
+    mutate(total = sum(grp_n))-> grps
+  
+  # in each group (min)
+  dfTemp %>% 
+    count(PG.ProteinAccessions, R.Condition) %>% 
+    left_join(grps, by = "R.Condition") %>% 
+    mutate(pct_grp = n/grp_n) %>% 
+    group_by(PG.ProteinAccessions) %>% 
+    summarise(in_each_group = min(pct_grp)) %>% 
+    arrange(desc(in_each_group)) %>% 
+    mutate(id = row_number()) %>%  select(id, in_each_group) -> pct_in_each_group
+  
+  pct_in_each_group_count <- pct_in_each_group %>% 
+    filter(in_each_group >= filter_value) %>% 
+    nrow()
+  
+  # at least one group (max)
+  dfTemp %>% 
+    group_by(PG.ProteinAccessions, R.Condition) %>% 
+    tally() %>% 
+    left_join(grps, by = "R.Condition") %>% 
+    mutate(pct_grp = n/grp_n) %>% 
+    group_by(PG.ProteinAccessions) %>% 
+    summarise(in_one_group = max(pct_grp)) %>% 
+    arrange(desc(in_one_group)) %>% 
+    mutate(id = row_number()) %>% select(id, in_one_group)->pct_in_one_group
+  
+  pct_in_one_group_count <- pct_in_one_group %>% 
+    filter(in_one_group >= filter_value) %>% 
+    nrow()
+  
+  # in all samples
+  dfTemp %>% 
+    left_join(grps, by = "R.Condition") %>% 
+    group_by(PG.ProteinAccessions, total) %>% 
+    tally() %>% 
+    ungroup() %>% 
+    mutate(in_all_samples = n/total) %>% 
+    arrange(desc(in_all_samples)) %>% 
+    mutate(id = row_number()) %>%  select(id, in_all_samples)-> pct_in_all_samples
+  
+  pct_in_all_samples_count <- pct_in_all_samples %>% 
+    filter(in_all_samples >= filter_value) %>% 
+    nrow()
+  
+  pct_in_all_samples %>% 
+    left_join(pct_in_each_group, by="id") %>%   
+    left_join(pct_in_one_group, by="id") %>%  
+    pivot_longer(contains("in")) %>% 
+    ggplot(aes(id, value, color=name))+
+    geom_line()+
+    labs(title="'Valid Values' (VV) filtering strategies", 
+         subtitle="Based on filtering 'in all samples', 'in each group' or 'in at least one group'", 
+         x="proteins", y="completeness")+
+    scale_y_continuous(labels = scales::percent)+
+    geom_hline(yintercept = filter_value, color="black", linetype = "dashed")+
+    geom_vline(xintercept = pct_in_all_samples_count, linetype = "dashed")+
+    annotate("text", 
+             x = pct_in_all_samples %>% filter(in_all_samples >= filter_value) %>% nrow(), 
+             y = .90, label = paste0(pct_in_all_samples_count, " proteins in all samples"), 
+             colour = colorList[1])+
+    geom_vline(xintercept = pct_in_each_group %>% filter(in_each_group >= filter_value) %>% nrow(), linetype = "dashed")+
+    annotate("text", 
+             x = pct_in_each_group_count, 
+             y = .95, label = paste0(pct_in_each_group_count, " proteins in each group"), 
+             colour = colorList[2])+
+    geom_vline(xintercept = pct_in_one_group %>% filter(in_one_group >= filter_value) %>% nrow(), linetype = "dashed")+
+    annotate("text", 
+             x = pct_in_one_group_count, 
+             y = .85, label = paste0(pct_in_one_group_count, " proteins in one group"), 
+             colour = colorList[3])+
+    annotate("text", x = 150, y = filter_value+0.03, label = paste0(filter_value*100, "% valid values"))+
+    #theme_MDBL()+
+    theme(legend.title = element_blank()) -> p
+  plot(p)
+  return(data)
+}
+
+filteringVV_AllSamples <- function(data, filter_value = 0.7){
+  data %>% 
+    select(R.FileName, R.Condition) %>% 
+    distinct() %>% 
+    group_by(R.Condition) %>% 
+    summarise(grp_n = n()) %>% 
+    mutate(total = sum(grp_n))-> grps
+  
+  data %>% 
+    left_join(grps, by = "R.Condition") %>% 
+    group_by(PG.ProteinAccessions, total) %>% 
+    tally() %>% 
+    ungroup() %>% 
+    mutate(in_all_samples = n/total) %>% 
+    arrange(desc(in_all_samples)) %>% 
+    filter(in_all_samples>=filter_value) -> filter_list
+  
+  data %>% 
+    filter(PG.ProteinAccessions %in% filter_list$PG.ProteinAccessions) -> return
+  
+  print(paste0("Data filtered based on 'All Samples' and returns " , length(unique(return$PG.ProteinAccessions)), " proteins"))
+  return(return)
+}
+
+filteringVV_EachGroup <- function(data, filter_value = 0.7){
+  data %>% 
+    select(R.FileName, R.Condition) %>% 
+    distinct() %>% 
+    group_by(R.Condition) %>% 
+    summarise(grp_n = n()) %>% 
+    mutate(total = sum(grp_n))-> grps
+  
+  data %>% 
+    group_by(PG.ProteinAccessions, R.Condition) %>% 
+    tally() %>% 
+    left_join(grps, by = "R.Condition") %>% 
+    mutate(pct_grp = n/grp_n) %>% 
+    group_by(PG.ProteinAccessions) %>% 
+    summarise(in_each_group = min(pct_grp)) %>% 
+    filter(in_each_group >= filter_value) -> filter_list
+  
+  data %>% 
+    filter(PG.ProteinAccessions %in% filter_list$PG.ProteinAccessions) -> return
+  
+  print(paste0("Data filtered based on 'Each group' and returns " , length(unique(return$PG.ProteinAccessions)), " proteins"))
+  return(return)
+}
+
+filteringVV_OneGroup <- function(data, filter_value = 0.7){
+  data %>% 
+    select(R.FileName, R.Condition) %>% 
+    distinct() %>% 
+    group_by(R.Condition) %>% 
+    summarise(grp_n = n()) %>% 
+    mutate(total = sum(grp_n))-> grps
+  
+  data %>% 
+    group_by(PG.ProteinAccessions, R.Condition) %>% 
+    tally() %>% 
+    left_join(grps, by = "R.Condition") %>% 
+    mutate(pct_grp = n/grp_n) %>% 
+    group_by(PG.ProteinAccessions) %>% 
+    summarise(in_one_group = max(pct_grp)) %>% 
+    filter(in_one_group >= filter_value) -> filter_list
+  
+  data %>% 
+    filter(PG.ProteinAccessions %in% filter_list$PG.ProteinAccessions) -> return
+  
+  print(paste0("Data filtered based on 'One group' and returns " , length(unique(return$PG.ProteinAccessions)), " proteins"))
+  return(return)
 }
