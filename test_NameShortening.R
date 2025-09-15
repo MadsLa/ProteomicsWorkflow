@@ -30,3 +30,14 @@ for(n in max(t$NameLength):3){
 
 df %>% 
   MDBL_NameShortening()
+
+
+data <- dfBGS %>% distinct(R.FileName)
+
+data %>% 
+  mutate(parts = str_count(R.FileName, "_"),
+         max_parts = max(parts, na.rm=T)) 
+  
+max(, na.rm = T )
+
+    

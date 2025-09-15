@@ -19,7 +19,7 @@ Files can be read from network drives.
 -   **fileCandidates** - Export of candidates list from Spectronaut. When exporting
 
 ```{r}
-fileBGSReport <- "raw/20250826_081536_20220329_QE5_YABH_PlasmaProt_Groningen_pEF-Healthy_SP_MQ+hybrid search_Report.tsv"
+fileBGSReport <- "raw/20250702_100140_20250610_YABH_MFGE8_Mouse_PlasmaProt_MagNet_PE_Report.tsv"
 fileCandidates <- "raw/20250826_081536_20220329_QE5_YABH_PlasmaProt_Groningen_pEF-Healthy_SP_MQ+hybrid search_Report_candidates.tsv"
 ```
 
@@ -28,7 +28,7 @@ fileCandidates <- "raw/20250826_081536_20220329_QE5_YABH_PlasmaProt_Groningen_pE
 The following meta data tags must be typed in below.
 
 |  |  |
-|----|----|
+|------------------------------------|------------------------------------|
 | info_project |  |
 | Project_tag |  |
 | Labels |  |
@@ -73,7 +73,7 @@ Set **RemoveNA** to **TRUE** (default setting) for removal of empty values. Scri
 Set **n** to [**Inf**]{.underline} or any digit to read only first n lines. Used to test script without loading massive reports.
 
 ```{r LoadReport}
-dfBGS <- MDBL_ReadBGSReport(fileBGSReport, n=10000, RemoveNA = TRUE)
+dfBGS <- MDBL_ReadBGSReport(fileBGSReport, n=Inf, RemoveNA = TRUE)
 ```
 
 ```{r LoadCandidates}
@@ -86,7 +86,8 @@ dfCandidates <- "MDBL"
 ### Shorten names
 
 ```{r}
-
+dfBGS %>% 
+  MDBL_NameShortening()
 ```
 
 ### 
