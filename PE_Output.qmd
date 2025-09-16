@@ -28,7 +28,7 @@ fileCandidates <- "raw/20250826_081536_20220329_QE5_YABH_PlasmaProt_Groningen_pE
 The following meta data tags must be typed in below.
 
 |  |  |
-|------------------------------------|------------------------------------|
+|----|----|
 | info_project |  |
 | Project_tag |  |
 | Labels |  |

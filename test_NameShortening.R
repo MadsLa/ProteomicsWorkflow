@@ -36,8 +36,8 @@ data <- dfBGS %>% distinct(R.FileName)
 
 data %>% 
   mutate(parts = str_count(R.FileName, "_"),
-         max_parts = max(parts, na.rm=T)) 
+         max_parts = max(parts, na.rm=T)) -> t
   
-max(, na.rm = T )
+max(t$, na.rm = T )
 
     
