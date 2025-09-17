@@ -12,13 +12,13 @@ MDBL_ReadBGSReport <- function(file, n=Inf, RemoveNA = T){
     rename("Needed in dataset" = value) %>% 
     rowwise() %>% 
     mutate("Found in dataset" = as.logical(sum(str_detect(dfTemp$value, `Needed in dataset`))))-> p
-  p %>% gt() -> q 
+  p -> q 
   #print(q)
   rm(dfTemp)
   
   if((nrow(p) - sum(p$`Found in dataset`)) == 0){
     print("All columns found, data being loaded")
-    dfTemp <- data.table::fread(file = file, nrows = n, showProgress=F)
+    dfTemp <- data.table::fread(file = file, nrows = Inf, showProgress=F)
     dfTemp <- dfTemp %>% select(all_of(positiveList)) 
     
     print(paste0(length(unique(dfTemp$PG.ProteinAccessions)), " unique proteins identified coming from ",length(unique(dfTemp$EG.ModifiedSequence)), " peptides across ", length(unique(dfTemp$R.FileName)), " samples in ", length(unique(dfTemp$R.Condition)) , " conditions"))

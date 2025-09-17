@@ -13,8 +13,7 @@ MDBL_CheckFile <- function(file = NA){
   as_tibble(positiveList) %>% 
     rename("Needed in dataset" = value) %>% 
     rowwise() %>% 
-    mutate("Found in dataset" = as.logical(sum(str_detect(dfTemp$value, `Needed in dataset`)))) %>% 
-    gt()
+    mutate("Found in dataset" = as.logical(sum(str_detect(dfTemp$value, `Needed in dataset`))))
 }
 
 
@@ -69,3 +68,8 @@ MDBL_ReadBGSReport <- function(file, RemoveNA = T){
 }
 
 dfBGS <- MDBL_ReadBGSReport(file=file)
+
+
+
+
+
