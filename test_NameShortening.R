@@ -1,6 +1,6 @@
 source("source.R")
 source("functions.R")
-file = "raw/20240725_095500_MFGE8_BMDiscovery_directDIA_crossExperiment_LYTL_RHZZ_Report.tsv"
+file = "ReportBGS_Test.tsv"
 df <- data.table::fread(file)
 
 
@@ -32,12 +32,25 @@ df %>%
   MDBL_NameShortening()
 
 
-data <- dfBGS %>% distinct(R.FileName)
 
-data %>% 
-  mutate(parts = str_count(R.FileName, "_"),
-         max_parts = max(parts, na.rm=T)) -> t
+MDBL_NameShortening2 <- function(data){
+  data %>% 
+    distinct(R.FileName) -> t
   
-max(t$, na.rm = T )
-
-    
+  # Split strings into a list of components
+  split_strings <- str_split(t$R.FileName, "_", simplify = TRUE)
+  
+  unique_check <- split_strings %>%
+    as_tibble() %>% 
+    summarise(across(everything(), ~ n_distinct(.) == 1))
+  
+  # Extract column names that have only one unique value
+  columns_with_one_value <- names(unique_check)[unique_check == TRUE]
+  
+  split_strings %>% 
+    as_tibble() %>% 
+    select(-paste(columns_with_one_value)) -> p
+  
+  p %>% 
+    unite("R.FileName", 1:ncol(p), remove = FALSE)
+}
