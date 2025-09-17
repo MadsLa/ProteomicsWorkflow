@@ -64,7 +64,59 @@ MDBL_PrintSummary <- function(data){
   print(paste0(" - ", data %>% distinct(R.Condition) %>% nrow(), " conditions"))
 }
 
+# MDBL_NameShortening2
+'Removes all common parts of R.FileNames from data.'
+'From file "20201010_XP1_CTR_01" and "20201010_XP1_Done_01" the "20201010_XP1" part would be removed'
+MDBL_NameShortening2 <- function(data){
+  data %>% 
+    distinct(R.FileName) -> t
+  
+  # Split strings into a list of components
+  split_strings <- str_split(t$R.FileName, "_", simplify = TRUE)
+  
+  unique_check <- split_strings %>%
+    as_tibble() %>% 
+    summarise(across(everything(), ~ n_distinct(.) == 1))
+  
+  # Extract column names that have only one unique value
+  columns_with_one_value <- names(unique_check)[unique_check == TRUE]
+  
+  split_strings %>% 
+    as_tibble() %>% 
+    select(-paste(columns_with_one_value)) -> p
+  
+  p %>% 
+    unite("R.FileNameTrim", 1:ncol(p), remove = FALSE) -> p
+  
+  t %>% 
+    add_column(Trim = p$R.FileNameTrim) %>% 
+    mutate(Trim = str_remove(Trim, "_$")) -> p
+  
+  data <- data %>% 
+    left_join(p, by = join_by(R.FileName)) %>% 
+    select(-R.FileName) %>% 
+    rename("R.FileName" = Trim)
+  return(data)
+}
 
+# RemoveSamples
+'Remove specific samples from data set base on R.FileName'
+MDBL_RemoveSamples <- function(data, samples=NULL){
+  if(is.null(samples)){return(data)}else{
+  print("Removing samples:")
+  samples_in_data <- tibble(R.FileName = unique(data$R.FileName))
+  for(n in samples){
+    if(nrow(samples_in_data %>% filter(R.FileName == n ))>0){
+      data %>% filter(R.FileName != n) -> data
+      print(paste0("- ", n, " found in data and removed"))
+    } else {
+      print(paste0("- ERROR, ", n, " NOT found in data"))
+    }
+  }
+  
+  return(data)
+  }
+}
 
 # SummaryTableSamples
 'Makes simple count per filename'
@@ -92,6 +144,7 @@ SummaryTableSamples <- function(data, exportTable = F){
   
   return(n)
 }
+
 
 
 # SummaryTableConditions
@@ -342,20 +395,7 @@ MDBL_tsne <- function(data){
   
 }
 
-MDBL_RemoveSamples <- function(data, samples){
-  print("Removing samples:")
-  samples_in_data <- tibble(R.FileName = unique(df$R.FileName))
-  for(n in samples){
-    if(nrow(samples_in_data %>% filter(R.FileName == n ))>0){
-      data %>% filter(R.FileName != n) -> data
-      print(paste0("- ", n, " found in data and removed"))
-    } else {
-      print(paste0("- ERROR, ", n, " NOT found in data"))
-    }
-  }
-  
-  return(data)
-}
+
 
 MDBL_RemoveConditions <- function(data, groups){
   print("Removing conditions:")

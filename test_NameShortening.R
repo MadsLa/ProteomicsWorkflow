@@ -33,24 +33,8 @@ df %>%
 
 
 
-MDBL_NameShortening2 <- function(data){
-  data %>% 
-    distinct(R.FileName) -> t
-  
-  # Split strings into a list of components
-  split_strings <- str_split(t$R.FileName, "_", simplify = TRUE)
-  
-  unique_check <- split_strings %>%
-    as_tibble() %>% 
-    summarise(across(everything(), ~ n_distinct(.) == 1))
-  
-  # Extract column names that have only one unique value
-  columns_with_one_value <- names(unique_check)[unique_check == TRUE]
-  
-  split_strings %>% 
-    as_tibble() %>% 
-    select(-paste(columns_with_one_value)) -> p
-  
-  p %>% 
-    unite("R.FileName", 1:ncol(p), remove = FALSE)
-}
+
+
+df %>% 
+  MDBL_NameShortening2()
+

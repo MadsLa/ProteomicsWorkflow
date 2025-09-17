@@ -19,8 +19,8 @@ Files can be read from network drives.
 -   **fileCandidates** - Export of candidates list from Spectronaut. When exporting
 
 ```{r}
-fileBGSReport <- "raw/20250702_100140_20250610_YABH_MFGE8_Mouse_PlasmaProt_MagNet_PE_Report.tsv"
-fileCandidates <- "raw/20250826_081536_20220329_QE5_YABH_PlasmaProt_Groningen_pEF-Healthy_SP_MQ+hybrid search_Report_candidates.tsv"
+fileBGSReport <- "ReportBGS_Test.tsv"
+fileCandidates <- "ReportCandidates_Test.tsv"
 ```
 
 #### Meta data:
@@ -28,7 +28,7 @@ fileCandidates <- "raw/20250826_081536_20220329_QE5_YABH_PlasmaProt_Groningen_pE
 The following meta data tags must be typed in below.
 
 |  |  |
-|----|----|
+|------------------------------------|------------------------------------|
 | info_project |  |
 | Project_tag |  |
 | Labels |  |
@@ -83,11 +83,18 @@ dfCandidates <- "MDBL"
 
 ## Clean data
 
+### Remove samples
+
+```{r}
+dfBGS <- dfBGS %>% 
+  MDBL_RemoveSamples()
+```
+
 ### Shorten names
 
 ```{r}
-dfBGS %>% 
-  MDBL_NameShortening()
+dfBGS <- dfBGS %>% 
+  MDBL_NameShortening2()
 ```
 
 ### 
