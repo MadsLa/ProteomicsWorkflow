@@ -86,8 +86,9 @@ dfCandidates <- "MDBL"
 ### Remove samples
 
 ```{r}
+SamplesToRemove <- c("Sample1", "Sample2")
 dfBGS <- dfBGS %>% 
-  MDBL_RemoveSamples()
+  MDBL_RemoveSamples(SamplesToRemove)
 ```
 
 ### Shorten names
