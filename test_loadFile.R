@@ -68,8 +68,3 @@ MDBL_ReadBGSReport <- function(file, RemoveNA = T){
 }
 
 dfBGS <- MDBL_ReadBGSReport(file=file)
-
-
-
-
-

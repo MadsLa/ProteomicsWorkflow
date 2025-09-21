@@ -12,6 +12,7 @@ MDBL_ReadBGSReport <- function(file, n=Inf, RemoveNA = T){
     rename("Needed in dataset" = value) %>% 
     rowwise() %>% 
     mutate("Found in dataset" = as.logical(sum(str_detect(dfTemp$value, `Needed in dataset`))))-> p
+  
   p -> q 
   #print(q)
   rm(dfTemp)
@@ -24,13 +25,17 @@ MDBL_ReadBGSReport <- function(file, n=Inf, RemoveNA = T){
     print(paste0(length(unique(dfTemp$PG.ProteinAccessions)), " unique proteins identified coming from ",length(unique(dfTemp$EG.ModifiedSequence)), " peptides across ", length(unique(dfTemp$R.FileName)), " samples in ", length(unique(dfTemp$R.Condition)) , " conditions"))
     
     if(RemoveNA == T){
-      nProteins <- length(dfTemp %>%  distinct(PG.ProteinAccessions, PG.Quantity) %>% filter(is.na(PG.Quantity)))
-      nPeptides <- length(dfTemp %>%  filter(is.na(FG.Quantity)))
+      nProteins <- nrow(dfTemp %>%  distinct(PG.ProteinAccessions, PG.Quantity) %>% filter(is.na(PG.Quantity)))
+      nPeptides <- nrow(dfTemp %>%  filter(is.na(FG.Quantity)))
+      nContaminants <- nrow(dfTemp %>%  filter(str_detect(PG.ProteinAccessions, "CON__")) %>% distinct(PG.ProteinAccessions))
       dfTemp %>% 
-        filter(!is.na(PG.Quantity)) -> dfTemp
+        filter(!is.na(PG.Quantity),
+               !is.na(FG.Quantity),
+               str_detect(PG.ProteinAccessions, "CON__")) -> dfTemp
       
-      print(paste0(nProteins, " proteins with 'NaN' removed"))
-      print(paste0(nPeptides, " peptides with 'NaN' removed"))
+      print(paste0(nProteins, " protein entries with 'NaN' removed"))
+      print(paste0(nPeptides, " peptide entries with 'NaN' removed"))
+      print(paste0(nContaminants, " proteins marked as 'contaminants' removed"))
     } else {
       print("Peptides/Proteins with 'NaN' NOT removed")
     }
@@ -39,7 +44,7 @@ MDBL_ReadBGSReport <- function(file, n=Inf, RemoveNA = T){
                "FileDate" = file.info(file)$mtime,
                "ReportDate" = today(),
                "SizeGB" = paste(round(file.info(file)$size/1024^3,3), " GB"),
-               "FASTA" = dfTemp %>% distinct(E.LFQMethod, PG.FASTAName) %>% group_by(PG.FASTAName) %>%  summarise(n = paste(PG.FASTAName, collapse = ";")) %>% pull(n),
+               "FASTA" = dfTemp %>% distinct(E.LFQMethod, PG.FASTAName) %>% group_by(E.LFQMethod) %>%  summarise(n = paste(PG.FASTAName, collapse = ";")) %>% pull(n),
                "Species" = dfTemp %>% distinct(E.LFQMethod, PEP.AllOccurringOrganisms) %>% group_by(E.LFQMethod) %>%  summarise(n = paste(PEP.AllOccurringOrganisms, collapse = ";")) %>% pull(n),
                "Errors" = dfTemp %>% head(1) %>% pull(E.Errors),
                "Warnings" = dfTemp %>% head(1) %>% pull(E.Warnings),
@@ -54,6 +59,19 @@ MDBL_ReadBGSReport <- function(file, n=Inf, RemoveNA = T){
     
   }
   
+}
+
+MDBL_ReadCandidateList <- function(file, n=Inf){
+  
+  positiveList <- c("`Comparison (group1/group2)`", "Group","ProteinGroups","AVG Log2 Ratio","Absolute AVG Log2 Ratio",
+                    "Pvalue","Qvalue","# of Ratios","UniProtIds","Genes",
+                    "ProteinDescriptions","ProteinNames","# Unique Total Peptides","% Change","Ratio",
+                    "Condition Numerator","Condition Denominator","GO Cellular Component","GO Molecular Function","GO Biological Process")
+  
+  dfTemp <- data.table::fread(file = file, nrows = n, showProgress=F)
+  nComparison <- nrow(dfCandidates %>% distinct(`Comparison (group1/group2)`))
+  print(paste0(nComparison, " comparisons loaded"))
+  return(dfTemp)
 }
 
 MDBL_PrintSummary <- function(data){
@@ -115,6 +133,25 @@ MDBL_RemoveSamples <- function(data, samples=NULL){
   }
   
   return(data)
+  }
+}
+
+# RemoveConditions
+'Remove specific samples from data set base on R.FileName'
+MDBL_RemoveConditions <- function(data, conditions=NULL){
+  if(is.null(conditions)){return(data)}else{
+    print("Removing conditions:")
+    conditions_in_data <- tibble(R.Condition = unique(data$R.Condition))
+    for(n in conditions){
+      if(nrow(conditions_in_data %>% filter(R.Condition == n ))>0){
+        data %>% filter(R.Condition != n) -> data
+        print(paste0("- ", n, " found in data and removed"))
+      } else {
+        print(paste0("- ERROR, ", n, " NOT found in data"))
+      }
+    }
+    
+    return(data)
   }
 }
 
@@ -397,20 +434,7 @@ MDBL_tsne <- function(data){
 
 
 
-MDBL_RemoveConditions <- function(data, groups){
-  print("Removing conditions:")
-  groups_in_data <- tibble(R.Condition = unique(df$R.Condition))
-  for(n in groups){
-    if(nrow(groups_in_data %>% filter(R.Condition == n ))>0){
-      data %>% filter(R.Condition != n) -> data
-      print(paste0("- ", n, " found in data and removed"))
-    } else {
-      print(paste0("- ERROR, ", n, " NOT found in data"))
-    }
-  }
-  
-  return(data)
-}
+
 
 MDBL_filteringVV_Plot <- function(data, filter_value = 0.7){
   filter_value = filter_value

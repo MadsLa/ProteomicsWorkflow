@@ -28,10 +28,10 @@ fileCandidates <- "ReportCandidates_Test.tsv"
 The following meta data tags must be typed in below.
 
 |  |  |
-|------------------------------------|------------------------------------|
-| info_project |  |
-| Project_tag |  |
-| Labels |  |
+|------------------------|-----------------------------------------------|
+| **info_project** |  |
+| **Project_tag** |  |
+| **Labels** |  |
 | **MS_Method** | Method used to generate MS data. "LC-MS proteomics, 24min, Astral, DIA" |
 | **Data responsible** | User(s) who generated data or who can be contacted for extra info on data. Multiple responsible can be separated by comma ("MDBL" or "MDBL, MDGR"). |
 | **Study responsible**: | User(s) who initiated the study/experiment. Multiple responsible can be separated by comma ("MDBL" or "MDBL, MDGR"). |
@@ -78,23 +78,50 @@ dfBGS <- MDBL_ReadBGSReport(fileBGSReport, n=Inf, RemoveNA = TRUE)
 
 ```{r LoadCandidates}
 
-dfCandidates <- "MDBL"
+dfCandidates <- MDBL_ReadCandidateList(fileCandidates, n=Inf)
 ```
 
 ## Clean data
 
 ### Remove samples
 
+**MDBL_RemoveSamples** can be used to remove files from data set.
+
 ```{r}
 SamplesToRemove <- c("Sample1", "Sample2")
+
 dfBGS <- dfBGS %>% 
   MDBL_RemoveSamples(SamplesToRemove)
 ```
 
-### Shorten names
+### Remove conditions
+
+**MDBL_RemoveConditions** can be used to remove named conditions from data set.
 
 ```{r}
+ConditionsToRemove <- c("Condition1", "Condition2")
+
 dfBGS <- dfBGS %>% 
+  MDBL_RemoveConditions(ConditionsToRemove)
+```
+
+### Shorten names
+
+Two functions are can be used for shortening file names.
+
+**MDBL_NameShortening** removes longest identical string from the start of the file names.
+
+**MDBL_NameShortening2** removes all identical substrings separated by "\_" from files.
+
+| R.FileName                | NameShortening     | NameShortening2  |
+|---------------------------|--------------------|------------------|
+| 20201004_XP1_MDBL_CTR_01  | 4_XP1_MDBL_CTR_01  | 20201004_CTR_01  |
+| 20201004_XP1_MDBL_CTR_02  | 4_XP1_MDBL_CTR_02  | 20201004_CTR_02  |
+| 20201006_XP1_MDBL_CTR_03  | 6_XP1_MDBL_CTR_03  | 20201006_CTR_03  |
+| 20201006_XP1_MDBL_Dose_01 | 6_XP1_MDBL_Dose_01 | 20201006_Dose_01 |
+
+```{r NameShortening2}
+dfBGS -> dfBGS %>%
   MDBL_NameShortening2()
 ```
 
