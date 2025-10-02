@@ -2,7 +2,7 @@ source("source.R")
 
 MDBL_ReadBGSReport <- function(file, n=Inf, RemoveNA = T){
   
-  positiveList <- c("R.FileName", "PG.Genes", "PG.ProteinAccessions", "PG.ProteinNames", "E.Errors", "E.Warnings", "R.Label", "R.Condition", "PG.FASTAName", "PG.Quantity", "PEP.StrippedSequence", "EG.ModifiedSequence", "PEP.AllOccurringOrganisms", "FG.Quantity", "E.LFQMethod")
+  positiveList <- c("R.FileName", "PG.Genes", "PG.ProteinAccessions", "PG.ProteinNames", "E.Errors", "E.Warnings", "R.Label", "R.Condition", "PG.FASTAName", "PG.Quantity", "PEP.StrippedSequence", "EG.ModifiedSequence", "PEP.AllOccurringOrganisms", "FG.Quantity", "E.LFQMethod", "FG.ID")
   
   dfTemp <- data.table::fread(file, nrows=1, showProgress=T) %>% 
     names() %>% 
@@ -31,15 +31,20 @@ MDBL_ReadBGSReport <- function(file, n=Inf, RemoveNA = T){
       dfTemp %>% 
         filter(!is.na(PG.Quantity),
                !is.na(FG.Quantity),
-               str_detect(PG.ProteinAccessions, "CON__")) -> dfTemp
+               !str_detect(PG.ProteinAccessions, "CON__")) -> dfTemp
       
       print(paste0(nProteins, " protein entries with 'NaN' removed"))
       print(paste0(nPeptides, " peptide entries with 'NaN' removed"))
       print(paste0(nContaminants, " proteins marked as 'contaminants' removed"))
+      print(paste0(paste0("Quantity_range, (log2) : ", round(log2(min(dfTemp$PG.Quantity)),2), " - ", round(log2(max(dfTemp$PG.Quantity)),2))))
     } else {
       print("Peptides/Proteins with 'NaN' NOT removed")
     }
     
+    dfTemp <- dfTemp %>% 
+      mutate(PG.Quantity = log2(PG.Quantity))
+    
+      
     data.frame("File" = file,
                "FileDate" = file.info(file)$mtime,
                "ReportDate" = today(),
@@ -69,7 +74,7 @@ MDBL_ReadCandidateList <- function(file, n=Inf){
                     "Condition Numerator","Condition Denominator","GO Cellular Component","GO Molecular Function","GO Biological Process")
   
   dfTemp <- data.table::fread(file = file, nrows = n, showProgress=F)
-  nComparison <- nrow(dfCandidates %>% distinct(`Comparison (group1/group2)`))
+  nComparison <- nrow(dfTemp %>% distinct(`Comparison (group1/group2)`))
   print(paste0(nComparison, " comparisons loaded"))
   return(dfTemp)
 }
@@ -99,9 +104,16 @@ MDBL_NameShortening2 <- function(data){
   # Extract column names that have only one unique value
   columns_with_one_value <- names(unique_check)[unique_check == TRUE]
   
+  # Data to keep
   split_strings %>% 
     as_tibble() %>% 
     select(-paste(columns_with_one_value)) -> p
+  
+  # Data to drop
+  split_strings %>% head(1) %>% 
+    as_tibble() %>% 
+    select(paste(columns_with_one_value)) -> q
+  q %>% mutate(String = apply(select(., 1:ncol(q)), 1, paste, collapse = "; ")) %>% select(String) %>% pull(String) -> q
   
   p %>% 
     unite("R.FileNameTrim", 1:ncol(p), remove = FALSE) -> p
@@ -114,6 +126,7 @@ MDBL_NameShortening2 <- function(data){
     left_join(p, by = join_by(R.FileName)) %>% 
     select(-R.FileName) %>% 
     rename("R.FileName" = Trim)
+ print(paste0("Common items removed from R.FileName: ", q))
   return(data)
 }
 

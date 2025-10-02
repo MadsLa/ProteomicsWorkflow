@@ -28,7 +28,7 @@ fileCandidates <- "ReportCandidates_Test.tsv"
 The following meta data tags must be typed in below.
 
 |  |  |
-|------------------------|-----------------------------------------------|
+|----|----|
 | **info_project** |  |
 | **Project_tag** |  |
 | **Labels** |  |
@@ -83,6 +83,16 @@ dfCandidates <- MDBL_ReadCandidateList(fileCandidates, n=Inf)
 
 ## Clean data
 
+### Remove non-quantified proteins and peptides
+
+If BGS report was loaded with **RemoveNA = FALSE** data might contain proteins and peptides without quantification. These should be removed prior to next steps.
+
+```{r RemoveNonQuantifiedProteins}
+dfBGS <- dfBGS %>% 
+  filter(PG.Quantity>0) %>% 
+  filter(FG.Quantity>0)
+```
+
 ### Remove samples
 
 **MDBL_RemoveSamples** can be used to remove files from data set.
@@ -121,11 +131,43 @@ Two functions are can be used for shortening file names.
 | 20201006_XP1_MDBL_Dose_01 | 6_XP1_MDBL_Dose_01 | 20201006_Dose_01 |
 
 ```{r NameShortening2}
-dfBGS -> dfBGS %>%
+dfBGS <- dfBGS %>%
   MDBL_NameShortening2()
 ```
 
-### 
+## Build object
+
+### Prepare proteins
+
+```{r PrepareProteinList}
+dfBGS %>% 
+  filter(PG.Quantity>0) %>% 
+  filter(!is.na(PG.Genes)) %>% 
+  distinct(R.FileName, PG.ProteinAccessions, PG.Genes, PG.Quantity) %>% 
+  pivot_wider(names_from = R.FileName, values_from = PG.Quantity) %>% 
+  rename("Uniprot_Accession" = "PG.ProteinAccessions",
+         "gene_symbol" = "PG.Genes") -> proteins
+```
+
+### Prepare peptides
+
+```{r PreparePeptidesList}
+dfBGS %>% 
+  filter(FG.Quantity>0) %>% 
+  filter(!is.na(PG.Genes)) %>% 
+  distinct(R.FileName, PG.ProteinAccessions, PG.Genes, PEP.StrippedSequence, fg_id, FG.Quantity) %>% 
+  mutate(fg_id = str_remove_all(fg_id, "_"),
+         fg_id = str_replace_all(fg_id, "\\[Carbamidomethyl \\(C\\)\\]", "\\(UniMod:4\\)"),
+         fg_id = str_replace_all(fg_id, "\\[Acetyl \\(Protein N\\-term\\)\\]", "\\(UniMod:1\\)"),
+         fg_id = str_replace_all(fg_id, "\\[Oxidation \\(M\\)\\]", "\\(UniMod:35\\)"),
+         "PEP_Count" = 1,
+         "Panel_7k" = 1) %>% 
+  rename("UniprotAccession" = "pg_protein_accessions",
+         "Sequence_NoMods" = "pep_stripped_sequence",
+         "Sequence_WithMods" = "fg_id",
+         "gene_symbol" = "pg_genes") %>% 
+  pivot_wider(names_from = r_file_name, values_from = fg_quantity) -> peptides
+```
 
 ### Merge meta data into one object
 
